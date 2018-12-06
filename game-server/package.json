@@ -1,9 +1,11 @@
 {
-    "name":"pomelotest",
-    "version":"0.0.1",
-    "private":false,
-    "dependencies":{
-        "pomelo":"2.2.5"
-    }
+  "name": "pomelotest",
+  "version": "0.0.1",
+  "private": false,
+  "dependencies": {
+    "mysql": "^2.16.0",
+    "mysql2": "^1.6.4",
+    "pomelo": "2.2.5",
+    "sequelize": "^4.41.2"
+  }
 }
-

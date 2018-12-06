@@ -15,6 +15,10 @@ app.configure('production|development', 'connector', function(){
       useDict : true,
       useProtobuf : true
     });
+  app.db = require('./app/appserver/dao/dbconnect');
+  app.db.initConnect();
+  app.redis = require('./app/appserver/dao/redisconnect');
+  app.redis.initAll(app);
 });
 
 // start app

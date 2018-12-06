@@ -93,6 +93,26 @@
         }
       ,"backups": 5,
       "category":"pomelo-rpc"
+    },
+    {
+      "type": "file",
+      "filename": "${opts:base}/logs/redis.log",
+      "maxLogSize": 1048576,
+      "layout": {
+        "type": "basic"
+      },
+      "backups": 5,
+      "category": "redis"
+    },
+    {
+      "type": "file",
+      "filename": "${opts:base}/logs/connect.log",
+      "maxLogSize": 1048576,
+      "layout": {
+        "type": "basic"
+      },
+      "backups": 5,
+      "category": "connect"
     }
   ],
 
