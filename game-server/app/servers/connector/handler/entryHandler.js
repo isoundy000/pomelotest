@@ -203,7 +203,8 @@ Handler.prototype.dataRecovery = function (msg, user, userStatus, session, next)
 		})
 		.then(() => {
 			let userInfo = new baseUser();
-			next(null, { code: 200, msg: { user: userInfo.getBaseInfo(user), userStatus} });
+			next(null, { code: 200, msg: { user: userInfo.getBaseInfo(user), userStatus } });
+			pomelo.app.configRedis.hset('allUserCount', pomelo.app.serverId, Object.keys(this.sessionService.service.uidMap).length);
 		})
 		.catch((error) => {
 			logger.error(`Handler.prototype.dataRecovery error`, error);
