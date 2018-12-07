@@ -113,6 +113,16 @@
       },
       "backups": 5,
       "category": "connect"
+    },
+    {
+      "type": "file",
+      "filename": "${opts:base}/logs/common.log",
+      "maxLogSize": 1048576,
+      "layout": {
+        "type": "basic"
+      },
+      "backups": 5,
+      "category": "common"
     }
   ],
 

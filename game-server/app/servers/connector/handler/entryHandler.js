@@ -57,6 +57,9 @@ Handler.prototype.subscribe = function (msg, session, next) {
 };
 
 Handler.prototype.login = function (msg, session, next) {
+	if (!this.app.startOver) {
+		return next(null, { code: -500, msg: '服务器启动中稍后连接' });
+	}
 	if (!msg.mobile || !msg.password) {
 		return next(null, { code: -500, msg: "账号或密码不能为空" });
 	}
@@ -224,7 +227,7 @@ var onUserLeave = function (app, session, reason) {
 			let iskick = 0;
 			if (userState && userState.gameType && userState.gameServerId) {
 				iskick = 1;
-				common.sendWithRpcInvoke(userState.gameType, userState.gameServerId, 'kick', [uid, sid, userState.roomId ? userState.roomId : 2], function () {
+				common.sendWithRpcInvoke(userState.gameType, userState.gameServerId, 'kick', [uid, sid, userState.roomId ? userState.roomId : null], function () {
 					let userStatus = {
 						uid,
 						iskick: null
