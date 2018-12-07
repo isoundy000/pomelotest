@@ -35,4 +35,26 @@ Redis.init = function (key, db, redisConfig) {
       await currentRedis.flushdb();
     }
   });
+
+  currentRedis.getObj = function (uid) {
+    return currentRedis.hgetall(uid)
+      .then((res) => {
+        if (res && Object.keys(res).length == 0) {
+          res = null;
+        }
+        return Promise.resolve(res);
+      })
+      .catch((error) => {
+        logger.error('currentRedis.getObj 出错', { error, uid });
+        return Promise.reject({ code: -500,msg: "查询redis数据库出错"});// redis获取数据失败
+      })
+  };
+  currentRedis.setObj = function (obj) {
+    return currentRedis.hmset(obj.uid, obj)
+      .catch((error) => {
+        logger.error('currentRedis.saveOrUpdateObj 出错', { error, obj });
+        return Promise.reject({ code: -500, msg: "redis 存储数据失败" });// redis数据库更新失败
+      })
+  };
 }
+
