@@ -20,7 +20,9 @@ class dbconnect {
   }
   initUser() {
     this.user = userdb(this.sequelize, Sequelize);
-    this.user.sync({ force: false })
+    this.user.sync({
+        force: false
+      }) // alter
       .then(() => {
         // // 已创建数据表
         // return this.user.create({
@@ -31,4 +33,3 @@ class dbconnect {
   }
 }
 module.exports = new dbconnect();
-

@@ -21,7 +21,10 @@ var Handler = function (app) {
  * @return {Void}
  */
 Handler.prototype.entry = function (msg, session, next) {
-	next(null, { code: 200, msg: 'game server is ok.' });
+	next(null, {
+		code: 200,
+		msg: 'game server is ok.'
+	});
 };
 
 /**
@@ -35,7 +38,10 @@ Handler.prototype.entry = function (msg, session, next) {
 Handler.prototype.publish = function (msg, session, next) {
 	var result = {
 		topic: 'publish',
-		payload: JSON.stringify({ code: 200, msg: 'publish message is ok.' })
+		payload: JSON.stringify({
+			code: 200,
+			msg: 'publish message is ok.'
+		})
 	};
 	next(null, result);
 };
@@ -51,26 +57,45 @@ Handler.prototype.publish = function (msg, session, next) {
 Handler.prototype.subscribe = function (msg, session, next) {
 	var result = {
 		topic: 'subscribe',
-		payload: JSON.stringify({ code: 200, msg: 'subscribe message is ok.' })
+		payload: JSON.stringify({
+			code: 200,
+			msg: 'subscribe message is ok.'
+		})
 	};
 	next(null, result);
 };
 
 Handler.prototype.login = function (msg, session, next) {
 	if (!this.app.startOver) {
-		return next(null, { code: -500, msg: '服务器启动中稍后连接' });
+		return next(null, {
+			code: -500,
+			msg: '服务器启动中稍后连接'
+		});
 	}
 	if (!msg.mobile || !msg.password) {
-		return next(null, { code: -500, msg: "账号或密码不能为空" });
+		return next(null, {
+			code: -500,
+			msg: "账号或密码不能为空"
+		});
 	}
 	let user = null;
-	return pomelo.app.db.findOne({ where: { mobile: msg.mobile } })
+	return pomelo.app.db.findOne({
+			where: {
+				mobile: msg.mobile
+			}
+		})
 		.then((result) => {
 			if (!result) {
-				return Promise.reject({ code: -500, msg: "请输入正确账号" });
+				return Promise.reject({
+					code: -500,
+					msg: "请输入正确账号"
+				});
 			}
 			if (result.password != msg.password) {
-				return Promise.reject({ code: -500, msg: "登录密码不正确" });
+				return Promise.reject({
+					code: -500,
+					msg: "登录密码不正确"
+				});
 			}
 			user = result;
 			return pomelo.app.redis.userStatus.getObj(user.uid);
@@ -97,8 +122,7 @@ Handler.prototype.login = function (msg, session, next) {
 								}
 								return this.dataRecovery(msg, user, userStatus, session, next);
 							})
-					}
-					else {
+					} else {
 						return Promise.promisify(this.app.sessionService.kick)(user.uid)
 							.then(() => {
 								return Promise.delay(50);
@@ -107,12 +131,14 @@ Handler.prototype.login = function (msg, session, next) {
 								return this.dataRecovery(msg, user, userStatus, session, next);
 							});
 					}
-				}
-				else {
+				} else {
 					// 不同设备登陆
 					let channelService = pomelo.app.get('channelService');
 					let oldsid = userStatus.sid;
-					common.createPromise(channelService, channelService.pushMessageByUids, "relogin", {}, [{ uid: user.uid, sid: oldsid }])
+					common.createPromise(channelService, channelService.pushMessageByUids, "relogin", {}, [{
+							uid: user.uid,
+							sid: oldsid
+						}])
 						.then(() => {
 							if (oldsid && oldsid != this.app.serverId) {
 								return this.InvokeKick(user.uid, oldsid).then(() => {
@@ -127,8 +153,7 @@ Handler.prototype.login = function (msg, session, next) {
 									}
 									return this.dataRecovery(msg, user, userStatus, session, next);
 								})
-							}
-							else {
+							} else {
 								Promise.promisify(this.app.sessionService.kick)(user.uid)
 									.then(() => {
 										return Promise.delay(50);
@@ -146,7 +171,10 @@ Handler.prototype.login = function (msg, session, next) {
 			logger.error(`Handler.prototype.login error`, error);
 			error.code = error.code || -500;
 			error.msg = error.msg || "登录失败";
-			next(null, { code: error.code, msg: error.msg });
+			next(null, {
+				code: error.code,
+				msg: error.msg
+			});
 		})
 };
 
@@ -155,7 +183,9 @@ Handler.prototype.InvokeKick = function (uid, serverId) {
 		namespace: 'user',
 		service: `entryRemote`,
 		method: `kick`,
-		args: [{ uid }]
+		args: [{
+			uid
+		}]
 	};
 	return common.createPromise(pomelo.app, pomelo.app.rpcInvoke, serverId, msg)
 		.then(() => {
@@ -165,7 +195,10 @@ Handler.prototype.InvokeKick = function (uid, serverId) {
 
 Handler.prototype.dataRecovery = function (msg, user, userStatus, session, next) {
 	let sid = pomelo.app.serverId;
-	return user.update({ isOnline: true, device: msg.device })
+	return user.update({
+			isOnline: true,
+			device: msg.device
+		})
 		.then(() => {
 			if (userStatus.iskick && userStatus.iskick == 1) {
 				return Promise.delay(100);
@@ -188,8 +221,7 @@ Handler.prototype.dataRecovery = function (msg, user, userStatus, session, next)
 					status: userStatus ? ((userStatus.status && userStatus.status != 0) ? userStatus.status : 0) : 0,
 					roomId: userStatus ? (userStatus.roomId ? userStatus.roomId : null) : null
 				};
-			}
-			else {
+			} else {
 				userStatus = {
 					uid: user.uid,
 					sid: sid,
@@ -203,15 +235,24 @@ Handler.prototype.dataRecovery = function (msg, user, userStatus, session, next)
 		})
 		.then(() => {
 			let userInfo = new baseUser();
-			next(null, { code: 200, msg: { user: userInfo.getBaseInfo(user), userStatus } });
+			next(null, {
+				code: 200,
+				msg: {
+					user: userInfo.getBaseInfo(user),
+					userStatus
+				}
+			});
 			pomelo.app.configRedis.hset('allUserCount', pomelo.app.serverId, Object.keys(this.sessionService.service.uidMap).length);
 		})
 		.catch((error) => {
 			logger.error(`Handler.prototype.dataRecovery error`, error);
 			error.code = error.code || -500;
 			error.msg = error.msg || "登录失败";
-			next(null, { code: error.code, msg: error.msg });
-	})
+			next(null, {
+				code: error.code,
+				msg: error.msg
+			});
+		})
 }
 
 var onUserLeave = function (app, session, reason) {
@@ -242,6 +283,11 @@ var onUserLeave = function (app, session, reason) {
 			};
 			pomelo.app.redis.userStatus.setObj(userStatus);
 		});
-	pomelo.app.db.update({ isOnline: false }, { where: { uid } })
+	pomelo.app.db.update({
+		isOnline: false
+	}, {
+		where: {
+			uid
+		}
+	})
 };
-
