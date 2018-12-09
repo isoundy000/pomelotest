@@ -1,4 +1,4 @@
-class HallRemote extends BaseRemote {
+class HallRemote {
   constructor() {
   }
   kick(uid, sid, roomId, cb) { }
