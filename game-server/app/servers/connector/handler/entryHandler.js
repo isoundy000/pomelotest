@@ -65,6 +65,9 @@ Handler.prototype.subscribe = function (msg, session, next) {
 	next(null, result);
 };
 
+/**
+ * 登录
+ */
 Handler.prototype.login = function (msg, session, next) {
 	if (!this.app.startOver) {
 		return next(null, {

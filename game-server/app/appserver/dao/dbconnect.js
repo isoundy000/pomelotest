@@ -1,10 +1,12 @@
 var Sequelize = require('sequelize');
 let userdb = require('./dbconfig/user');
+let roomdb = require('./dbconfig/room');
 class dbconnect {
   constructor() {
     this.sequelize = null; // 数据库连接池
     this.user = null; // 用户表 
     this.record = null;
+    this.room = null; // 房间表
   }
   initConnect() {
     this.sequelize = new Sequelize('pomelotest', 'root', null, {
@@ -17,6 +19,7 @@ class dbconnect {
       }
     });
     this.initUser();
+    this.initRoom();
   }
   initUser() {
     this.user = userdb(this.sequelize, Sequelize);
@@ -30,6 +33,12 @@ class dbconnect {
         //   mobile:null,
         // });
       });
+  }
+  initRoom() {
+    this.room = roomdb(this.sequelize, Sequelize);
+    this.room.sync({
+      force: false
+    }) // alter
   }
 }
 module.exports = new dbconnect();
