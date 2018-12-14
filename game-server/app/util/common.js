@@ -131,6 +131,43 @@ exp.generateSession = function (uid, sid) {
   session.get = function () {
     return sid;
   }
-
   return session;
 }
+
+exp.addToChannel = function (channel, uid, sid) {
+  if (typeof uid != 'number') {
+    uid = parseInt(uid);
+  }
+  let member = channel.getMember(uid);
+  if (member) {
+    channel.leave(member.uid, member.sid);
+  }
+  channel.add(uid, sid);
+}
+
+exp.leaveChannel = function (channel, uid) {
+  if (typeof uid != 'number') {
+    uid = parseInt(uid);
+  }
+  let member = channel.getMember(uid);
+  if (member) {
+    channel.leave(member.uid, member.sid);
+  }
+}
+
+// 定时器ID
+exp.TIMER_ID = {
+  ID_READY: 1,								// 准备定时器
+  ID_OUT_CARD: 2,						  // 出牌定时器
+  ID_TRUSTEE: 3,							// 托管定时器
+  ID_OFFLINE_KCIK: 4,         //掉线一段时间后踢出定时器
+  ID_END_TO_CONTINUE: 5,      //一局结束到下一句开始定时器
+  ID_DELAY_TO_CLEANEND: 6,    //一局结束延时清理结算
+};
+
+// 定时器ID
+exp.GAMESTATE = {
+  FREE:0,                 // 非游戏状态
+  READY: 1,								// 准备状态
+  RUN: 2,						      // 游戏状态
+};
