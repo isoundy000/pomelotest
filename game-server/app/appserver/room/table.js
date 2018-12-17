@@ -295,11 +295,7 @@ class table {
   }
   
   onGameStart() {
-    this.closeTimers();
-    for (let key in this.mapUserInfo) {
-      this.mapUserInfo[key].setRun();
-      this.mapUserInfo[key].clearUserInfo();
-    }
+    
   }
 }
 module.exports = table;
