@@ -1,6 +1,7 @@
 let Define = require('./commonDefine');
 let CQuadrantTree = require('./QuadrantTree');
-
+const _ = require('lodash');
+let stoneObj = Define.stoneObj;
 let stc_pszFanName =
   [
     "大四喜", "大三元", "绿一色", "九莲宝灯", "四杠", "连七对", "十三幺", "清幺九", "小四喜", "小三元", "字一色", "四暗刻", "一色双龙会", "一色四同顺", "一色四节高",
@@ -26,12 +27,12 @@ CJudge = function () {
   this.m_sGroupsRelation = "";// 所有分组的统计信息
   this.m_abEnableRule = new Array(Define.MAXFANS);
 
-  this.m_sStonesRelation = new STONESRELATION();// 手中牌的统计信息
+  this.m_sStonesRelation = new Define.stoneRelation();// 手中牌的统计信息
 
   // Doc类传过来的参数
-  this.m_pCheckParam = CHECKPARAM.create();
+  this.m_pCheckParam = new Define.checkParam();
   // 算番结果
-  this.m_sHuResult = HURESULT.create();
+  this.m_sHuResult = new Define.huresult();
 
   // 当前使用的规则
   this.m_eRule = 0;
@@ -46,7 +47,7 @@ CJudge = function () {
   this.m_checkfans = [];//需要检查的翻型列表
 
   //
-  this.m_sOriginalStoneRelation = new STONESRELATION();
+  this.m_sOriginalStoneRelation = new Define.stoneRelation();
 
 };
 CJudge.create = function (rule) {
@@ -76,7 +77,7 @@ CJudge.prototype.Init = function () {
     this.m_asFanInfo[i] = { nScore: 0, fCheck: "", fParse: "" };
   }
   for (let i = 0; i < 34; i++) {
-    this.m_asAllStone[i] = new STONE();
+    this.m_asAllStone[i] = new stoneObj();
   }
 
   // 初始化番种列表
@@ -475,7 +476,7 @@ CJudge.prototype.Check9LianBaoDen = function (sHuResult, that) {
   }
 
   // 先搜索到最后摸的那张牌的花色和数字
-  let sWinTileInfo = new tagTileInfo();
+  let sWinTileInfo = new Define.tagTileInfo();
   if (that.IsHun(that.m_pCheckParam.asHandStone[0])) {
     // 如果最后那张是混牌，还要到分组里去搜索，看它变成什么牌了
     that.GetTileInfo(that.m_pCheckParam.asHandStone[0].nID, sHuResult.asGroup, sWinTileInfo);
@@ -619,12 +620,12 @@ CJudge.prototype.UseHuntocard = function (sHunStone, nColor, nWhat) {
 CJudge.prototype.Sort = function (asStone, cnStone) {
 
   let k = 0;
-  let sStone = new STONE();
+  let sStone = new stoneObj();
 
   //if ( this.IsHun( asStone[0] ) )
   //{
   //    // 和的那张牌是混牌，放到最后再说
-  //    sStone = _clone(asStone[0]);
+  //    sStone = _.cloneDeep(asStone[0]);
   //    asStone.splice(0,1);
   //    asStone.push(sStone);
   //}
@@ -666,7 +667,7 @@ CJudge.prototype.CheckWin = function (sCheckParam, sHuResult) {
   }
 
   // 将吃碰杠的分组拷到返回结构里
-  sHuResult.asGroup = _clone(sCheckParam.asShowGroup);
+  sHuResult.asGroup = _.cloneDeep(sCheckParam.asShowGroup);
   sHuResult.cnShowGroups = sCheckParam.cnShowGroups;
 
   // 将传进来的参数暂存一下
@@ -675,23 +676,23 @@ CJudge.prototype.CheckWin = function (sCheckParam, sHuResult) {
   // 不能破坏传进来的参数，后面算番还要用到,保存手中的牌
   let asHandStone = [];
   for (let i = 0; i < Define.MAX_HAND_COUNT; i++) {
-    asHandStone[i] = new STONE();
+    asHandStone[i] = new stoneObj();
   }
-  asHandStone = _clone(sCheckParam.asHandStone);
+  asHandStone = _.cloneDeep(sCheckParam.asHandStone);
 
 
   //将手中的牌排序(混牌在最后，其它牌按从小到大排列)
   this.Sort(asHandStone, asHandStone.length);
 
   // 扫描一下牌型
-  this.m_sOriginalStoneRelation = new STONESRELATION();
+  this.m_sOriginalStoneRelation = new Define.stoneRelation();
   this.GetStonesRelation(asHandStone, sCheckParam.cnHandStone, this.m_sOriginalStoneRelation);
 
   //this.m_sStonesRelation = this.m_sOriginalStoneRelation;
   let cnNormalStone = sCheckParam.cnHandStone - this.m_sOriginalStoneRelation.cnHun;
 
   let eRet = Define.F_NOTTING;
-  let sHuResultTmp = _clone(sHuResult);
+  let sHuResultTmp = _.cloneDeep(sHuResult);
 
   // ************* //
   // 十三幺,全不靠 //
@@ -706,7 +707,7 @@ CJudge.prototype.CheckWin = function (sCheckParam, sHuResult) {
     sHuResultTmp.nResultant = Define.SHISHANYAO;
     eRet = this.CheckThirteenUnios(asHandStone, cnNormalStone, this.m_sOriginalStoneRelation.cnHun, sHuResultTmp, this.m_checkfans);
     if (sHuResultTmp.nMaxFans > sHuResult.nMaxFans) {
-      //sHuResult = _clone(sHuResultTmp);
+      //sHuResult = _.cloneDeep(sHuResultTmp);
       _cpytoobj(sHuResult, sHuResultTmp);
     }
     if (eRet == Define.T_OK) {
@@ -718,7 +719,7 @@ CJudge.prototype.CheckWin = function (sCheckParam, sHuResult) {
     if (this.m_sOriginalStoneRelation.cnStoneTypes + this.m_sOriginalStoneRelation.cnHun == 14) {
       let eRetTmp = this.CheckAllLonely(asHandStone, cnNormalStone, this.m_sOriginalStoneRelation.cnHun, sHuResultTmp, this.m_checkfans);
       if (sHuResultTmp.nMaxFans > sHuResult.nMaxFans) {
-        //sHuResult = _clone(sHuResultTmp);
+        //sHuResult = _.cloneDeep(sHuResultTmp);
         _cpytoobj(sHuResult, sHuResultTmp);
       }
       if (eRetTmp == Define.T_OK) {
@@ -739,7 +740,7 @@ CJudge.prototype.CheckWin = function (sCheckParam, sHuResult) {
 
   let eRetTmp = this.CheckZuHeLong(asHandStone, cnNormalStone, this.m_sOriginalStoneRelation.cnHun, sHuResultTmp, this.m_checkfans);
   if (sHuResultTmp.nMaxFans > sHuResult.nMaxFans) {
-    //sHuResult = _clone(sHuResultTmp);
+    //sHuResult = _.cloneDeep(sHuResultTmp);
     _cpytoobj(sHuResult, sHuResultTmp);
   }
   if (eRetTmp == Define.T_OK) {
@@ -760,7 +761,7 @@ CJudge.prototype.CheckWin = function (sCheckParam, sHuResult) {
   sHuResultTmp.nResultant = Define.QIDUI;
   eRetTmp = this.CheckSevenPairs(asHandStone, cnNormalStone, this.m_sOriginalStoneRelation.cnHun, sHuResultTmp, this.m_checkfans);
   if (sHuResultTmp.nMaxFans > sHuResult.nMaxFans) {
-    //sHuResult = _clone(sHuResultTmp);
+    //sHuResult = _.cloneDeep(sHuResultTmp);
     _cpytoobj(sHuResult, sHuResultTmp);
   }
   if (eRetTmp == Define.T_OK) {
@@ -791,7 +792,7 @@ CJudge.prototype.CheckWin = function (sCheckParam, sHuResult) {
   eRetTmp = this.CheckNormal(asHandStone, cnNormalStone, this.m_sOriginalStoneRelation.cnHun, sCheckParam.cnShowGroups, sHuResultTmp);
 
   if (sHuResultTmp.nMaxFans > sHuResult.nMaxFans) {
-    //sHuResult = _clone(sHuResultTmp);
+    //sHuResult = _.cloneDeep(sHuResultTmp);
     _cpytoobj(sHuResult, sHuResultTmp);
 
   }
@@ -851,7 +852,7 @@ CJudge.prototype.CheckTing = function (sCheckParam, vsCallInfo) {
     this.Sort(sCheckParam.asHandStone, sCheckParam.asHandStone.length);
   }
 
-  let sCallInfo = tagCallInfo.create();
+  let sCallInfo = new Define.tagCallInfo();
   let eRet = Define.F_NOTTING;
 
   for (let i = 0; i < cnTryStone; i++) {
@@ -874,12 +875,12 @@ CJudge.prototype.CheckTing = function (sCheckParam, vsCallInfo) {
     //		i = j - 1;
 
     // 将准备替换的那张牌移到第一张的位置
-    let sTileBak = _clone(sCheckParam.asHandStone[i]);
+    let sTileBak = _.cloneDeep(sCheckParam.asHandStone[i]);
     sCallInfo.nDiscardTileID = sTileBak.nID;
     // 这里只要将第一张牌移动到准备替换的那张牌所在的位置就行了
-    _memcpy(sCheckParam.asHandStone, i, sCheckParam.asHandStone, 0, 1);
+    Define._memcpy(sCheckParam.asHandStone, i, sCheckParam.asHandStone, 0, 1);
 
-    let sHuResult = HURESULT.create();
+    let sHuResult = new Define.huresult();
     for (let j = 0; j < 34; j++) {
       if (this.IsHun(this.m_asAllStone[j])) {
         // 混牌不用算进去
@@ -918,8 +919,8 @@ CJudge.prototype.CheckTing = function (sCheckParam, vsCallInfo) {
     }
 
     // 本张检验完了，还原
-    _memcpy(sCheckParam.asHandStone, 0, sCheckParam.asHandStone, i, 1);
-    _memcpy(sCheckParam.asHandStone, i, sTileBak, 0, 1);
+    Define._memcpy(sCheckParam.asHandStone, 0, sCheckParam.asHandStone, i, 1);
+    Define._memcpy(sCheckParam.asHandStone, i, sTileBak, 0, 1);
   }
 
   return eRet;
@@ -933,7 +934,7 @@ CJudge.prototype.CheckTing = function (sCheckParam, vsCallInfo) {
 CJudge.prototype.EnumerateHunFans = function (nHunGroupIndex, sHuResult) {
 
   // 需要在这里变混，而不是在算番的函数里变混
-  let sHuResultTmp = _clone(sHuResult);
+  let sHuResultTmp = _.cloneDeep(sHuResult);
   let eRet = Define.F_NOENOUGHFANS;
   let i = 0;
   let j = 0;
@@ -1027,8 +1028,8 @@ CJudge.prototype.EnumerateFans = function (sHuResult) {
   //		// 碰碰和和普通牌型
   //		GetGroupsInfo( sHuResult.asGroup, this.m_sGroupsRelation, this.m_sStonesRelation );
   //	}
-  this.m_sGroupsRelation = groupsRelation.create();	//分组的统计信息
-  this.m_sStonesRelation = new STONESRELATION();	//手中牌的统计信息
+  this.m_sGroupsRelation = new Define.groupsRelation();	//分组的统计信息
+  this.m_sStonesRelation = new Define.stoneRelation();	//手中牌的统计信息
 
   this.GetGroupsInfo(sHuResult, this.m_sGroupsRelation, this.m_sStonesRelation);
   // 1.根据花色信息和顺刻数量决定算番的路径
@@ -1302,7 +1303,7 @@ CJudge.prototype.EnumerateFans = function (sHuResult) {
 // **************************************************************************************
 CJudge.prototype.CanWin = function (sCheckParam, sWinInfo) {
   // 将传进来的参数暂存一下(这个参数是绝对可靠的)
-  this.m_pCheckParam = _clone(sCheckParam);
+  this.m_pCheckParam = _.cloneDeep(sCheckParam);
 
   // 验证sWinInfo的正确性
   if (!this.ValidWinInfo(sCheckParam, sWinInfo)) {
@@ -1416,8 +1417,8 @@ CJudge.prototype.ValidWinInfo = function (sCheckParam, sWinInfo) {
           }
         }
         if (j != i) {
-          let sTile = _clone(sWinInfo.asHandStone[k]);
-          sWinInfo.asHandStone[k] = _clone(sWinInfo.asHandStone[i]);
+          let sTile = _.cloneDeep(sWinInfo.asHandStone[k]);
+          sWinInfo.asHandStone[k] = _.cloneDeep(sWinInfo.asHandStone[i]);
           sWinInfo.asHandStone[i] = sTile;
         }
       }
@@ -1485,7 +1486,7 @@ CJudge.prototype.CheckZuHeLong = function (asStone, cnNormalStone, cnHun, sHuRes
 
   let asLeftStone = [];	//最多还剩5张
 
-  let sHuResultTmp = _clone(sHuResult);
+  let sHuResultTmp = _.cloneDeep(sHuResult);
   sHuResultTmp.nResultant = Define.ZUHELONG;
   sHuResultTmp.cnGroups = this.m_cnMaxGroups;
   let eRet = Define.F_NOTTING;
@@ -1497,7 +1498,7 @@ CJudge.prototype.CheckZuHeLong = function (asStone, cnNormalStone, cnHun, sHuRes
     let cnLeftHun = cnHun;		// 剩下的混牌数
     let nUngroupedIndex = 0;	// 未被分组的牌
     for (let l = 0; l < 13; l++) {
-      asLeftStone[l] = new STONE();
+      asLeftStone[l] = new stoneObj();
     }
 
     let j = 0;
@@ -1523,7 +1524,7 @@ CJudge.prototype.CheckZuHeLong = function (asStone, cnNormalStone, cnHun, sHuRes
 
             // 是这张牌，拷到分组里
             nUngroupedIndex = k + 1;
-            sHuResultTmp.asGroup[nGroupIndex].asStone[nStoneIndexOfGroup] = _clone(asStone[k]);
+            sHuResultTmp.asGroup[nGroupIndex].asStone[nStoneIndexOfGroup] = _.cloneDeep(asStone[k]);
             nStoneIndexOfGroup++;
             if (nStoneIndexOfGroup == 3) {
               sHuResultTmp.asGroup[nGroupIndex].nGroupStyle = Define.GROUP_STYLE_LONG;
@@ -1536,7 +1537,7 @@ CJudge.prototype.CheckZuHeLong = function (asStone, cnNormalStone, cnHun, sHuRes
           }
         }
         for (let j1 = cnLeftStone, k1 = nLastIndex, l1 = 0; l1 < nUngroupedIndex - nLastIndex - 1; l1++) {
-          asLeftStone[j1++] = _clone(asStone[k1++]);
+          asLeftStone[j1++] = _.cloneDeep(asStone[k1++]);
         }
         cnLeftStone += nUngroupedIndex - nLastIndex - 1;
         if (cnLeftStone > 5) {
@@ -1550,7 +1551,7 @@ CJudge.prototype.CheckZuHeLong = function (asStone, cnNormalStone, cnHun, sHuRes
         }
         // 从最后面取一张混，并将混设成需要的牌
         cnLeftHun--;
-        sHuResultTmp.asGroup[nGroupIndex].asStone[nStoneIndexOfGroup] = _clone(asStone[cnNormalStone + cnLeftHun]);
+        sHuResultTmp.asGroup[nGroupIndex].asStone[nStoneIndexOfGroup] = _.cloneDeep(asStone[cnNormalStone + cnLeftHun]);
         sHuResultTmp.asGroup[nGroupIndex].asStone[nStoneIndexOfGroup].nColor =
           nGroupIndex - this.m_pCheckParam.cnShowGroups;// 按万条饼的顺序
         sHuResultTmp.asGroup[nGroupIndex].asStone[nStoneIndexOfGroup].nWhat = j % 9;
@@ -1573,7 +1574,7 @@ CJudge.prototype.CheckZuHeLong = function (asStone, cnNormalStone, cnHun, sHuRes
     if (nUngroupedIndex < cnNormalStone) {
       // 所有未分组的牌全拷进去
       for (let j = cnLeftStone, k = nUngroupedIndex, l = 0; l <= cnNormalStone - nUngroupedIndex; l++) {
-        asLeftStone[j++] = _clone(asStone[k++]);
+        asLeftStone[j++] = _.cloneDeep(asStone[k++]);
       }
 
       cnLeftStone += cnNormalStone - nUngroupedIndex;
@@ -1582,7 +1583,7 @@ CJudge.prototype.CheckZuHeLong = function (asStone, cnNormalStone, cnHun, sHuRes
     if (cnLeftHun != 0) {
       // 还有多余的混，拷到剩余牌数组
       for (let j = cnLeftStone, k = cnNormalStone, l = 0; l < cnLeftHun; l++) {
-        asLeftStone[j++] = _clone(asStone[k++]);
+        asLeftStone[j++] = _.cloneDeep(asStone[k++]);
       }
     }
     checklist.push(Define.FAN_ZHUHELONG);
@@ -1597,7 +1598,7 @@ CJudge.prototype.CheckZuHeLong = function (asStone, cnNormalStone, cnHun, sHuRes
     // 比较一下，是否比以前算出的番数大
     if (sHuResultTmp.nMaxFans > sHuResult.nMaxFans) {
       // 比以前算出的番数大，替换之
-      //sHuResult = _clone(sHuResultTmp);
+      //sHuResult = _.cloneDeep(sHuResultTmp);
       _cpytoobj(sHuResult, sHuResultTmp);
       // 至少有一次成功!
       eRet = Define.T_OK;
@@ -1637,7 +1638,7 @@ CJudge.prototype.CheckSevenPairs = function (asStone, cnNormalStone, cnHun, sHuR
   }
 
   // 再将混牌变成需要的牌
-  _memcpy(sHuResult.asHandStone, 0, asStone, 0, 14);
+  Define._memcpy(sHuResult.asHandStone, 0, asStone, 0, 14);
   let nHunIndex = cnNormalStone;
   this.m_sStonesRelation = this.m_sOriginalStoneRelation;
   if (cnHun != 0) {
@@ -1657,14 +1658,14 @@ CJudge.prototype.CheckSevenPairs = function (asStone, cnNormalStone, cnHun, sHuR
   //	return EnumerateFans( sHuResult );
 
   // 需要在这里变混，而不是在算番的函数里变混
-  let sHuResultTmp = _clone(sHuResult);
+  let sHuResultTmp = _.cloneDeep(sHuResult);
   sHuResultTmp.nResultant = Define.QIDUI;
   let eRet = Define.F_NOENOUGHFANS;
   let j = 0;
   let i = 0;
   do {
     // 在下面会修改this.m_sStonesRelation,保存一下
-    let sStonesRelation1 = _clone(this.m_sStonesRelation);
+    let sStonesRelation1 = _.cloneDeep(this.m_sStonesRelation);
     if (nHunIndex != cnNormalStone + cnHun) {
       // 第一对混
       this.UseHun(sHuResultTmp.asHandStone[nHunIndex], i, true);
@@ -1678,7 +1679,7 @@ CJudge.prototype.CheckSevenPairs = function (asStone, cnNormalStone, cnHun, sHuR
     j = 0;
     do {
       // 在下面会修改this.m_sStonesRelation,保存一下
-      let sStonesRelation2 = _clone(this.m_sStonesRelation);
+      let sStonesRelation2 = _.cloneDeep(this.m_sStonesRelation);
       if (nHunIndex == 10) {
         // 还有一对混
         this.UseHun(sHuResultTmp.asHandStone[12], j, true);
@@ -1694,7 +1695,7 @@ CJudge.prototype.CheckSevenPairs = function (asStone, cnNormalStone, cnHun, sHuR
         eRet = Define.T_OK;
       }
       if (sHuResultTmp.nMaxFans > sHuResult.nMaxFans) {
-        //sHuResult = _clone(sHuResultTmp);
+        //sHuResult = _.cloneDeep(sHuResultTmp);
         _cpytoobj(sHuResult, sHuResultTmp);
       }
       // 在下一次循环前恢复
@@ -1725,7 +1726,7 @@ CJudge.prototype.CheckThirteenUnios = function (asStone, cnNormalStone, cnHun, s
     2, 0, 0, 0, 0, 0, 0, 0, 2,// 饼
     2, 2, 2, 2, 2, 2, 2];
   let nHunIndex = cnNormalStone;
-  let tempasStone = _clone(asStone);
+  let tempasStone = _.cloneDeep(asStone);
   for (let i = 0; i < 34; i++) {
     if (this.m_sOriginalStoneRelation.acnHandStones[i] > acnMax[i]) {
       return Define.F_NOTTING;
@@ -1766,7 +1767,7 @@ CJudge.prototype.CheckThirteenUnios = function (asStone, cnNormalStone, cnHun, s
    */
   sHuResult.nResultant = Define.SHISHANYAO;
   sHuResult.cnGroups = 14;
-  _memcpy(sHuResult.asHandStone, 0, asStone, 0, 14);
+  Define._memcpy(sHuResult.asHandStone, 0, asStone, 0, 14);
   checklist.push(Define.FAN_131);
   return this.EnumerateFans(sHuResult);
 }
@@ -1817,7 +1818,7 @@ CJudge.prototype.CheckAllLonely = function (asStone, cnNormalStone, cnHun, sHuRe
     }
     cnWind += this.m_sOriginalStoneRelation.acnHandStones[i];
   }
-  _memcpy(sHuResult.asHandStone, 0, asStone, 0, 14);
+  Define._memcpy(sHuResult.asHandStone, 0, asStone, 0, 14);
   this.m_sStonesRelation = this.m_sOriginalStoneRelation;// 分组后将出现变化
   if (cnHun > 0) {
     let nHunIndex = cnNormalStone;
@@ -1959,23 +1960,23 @@ CJudge.prototype.CheckNormal = function (asStone, cnNormalStone, cnHun, cnGroupe
     return Define.F_NOTTING;
   }
 
-  let sJongGroup = STONEGROUP.create();
+  let sJongGroup = new Define.stoneGroup();
   sJongGroup.nGroupStyle = Define.GROUP_STYLE_JONG;
   let asLeftStone = [];	// 除掉将牌后还剩下的牌
   for (let i = 0; i < 15; i++) {
-    asLeftStone[i] = new STONE();
+    asLeftStone[i] = new stoneObj();
   }
   let cWinTree = new CQuadrantTree();//11111111111111111111111
-  let sHuResultTmp = _clone(sHuResult);
+  let sHuResultTmp = _.cloneDeep(sHuResult);
   //	sHuResultTmp.nResultant = NORMAL;
   sHuResultTmp.cnGroups = this.m_cnMaxGroups;
   let cnLeftStone;
   let cnLeftHun;
   let sRet = Define.F_NOTTING;
   for (let i = 0; i < cnPossibleJongs; i++) {
-    sJongGroup.asStone[0] = _clone(asStone[anJongIndex[i][0]]);
-    sJongGroup.asStone[1] = _clone(asStone[anJongIndex[i][1]]);
-    _memcpy(asLeftStone, 0, asStone, 0, anJongIndex[i][0]);//第一张之前的
+    sJongGroup.asStone[0] = _.cloneDeep(asStone[anJongIndex[i][0]]);
+    sJongGroup.asStone[1] = _.cloneDeep(asStone[anJongIndex[i][1]]);
+    Define._memcpy(asLeftStone, 0, asStone, 0, anJongIndex[i][0]);//第一张之前的
     if (this.IsHun(asStone[anJongIndex[i][1]])) {
       // 第二张是混牌
       if (this.IsHun(asStone[anJongIndex[i][0]])) {
@@ -1991,7 +1992,7 @@ CJudge.prototype.CheckNormal = function (asStone, cnNormalStone, cnHun, cnGroupe
         cnLeftHun = cnHun - 1;
         // 两张之间的牌拷入剩余牌数组
 
-        _memcpy(asLeftStone, anJongIndex[i][0], asStone, anJongIndex[i][0] + 1, (anJongIndex[i][1] - anJongIndex[i][0] - 1));
+        Define._memcpy(asLeftStone, anJongIndex[i][0], asStone, anJongIndex[i][0] + 1, (anJongIndex[i][1] - anJongIndex[i][0] - 1));
       }
     }
     else {
@@ -1999,7 +2000,7 @@ CJudge.prototype.CheckNormal = function (asStone, cnNormalStone, cnHun, cnGroupe
       cnLeftStone = cnNormalStone - 2;
       cnLeftHun = cnHun;
       // 第二张之后的的牌拷入剩余牌数组
-      _memcpy(asLeftStone, anJongIndex[i][1] - 1, asStone, anJongIndex[i][1] + 1, (cnNormalStone + cnHun - anJongIndex[i][1] - 1));
+      Define._memcpy(asLeftStone, anJongIndex[i][1] - 1, asStone, anJongIndex[i][1] + 1, (cnNormalStone + cnHun - anJongIndex[i][1] - 1));
     }
     if (cWinTree.Create(sJongGroup, asLeftStone, cnLeftStone, cnLeftHun)) {
       // 创建成功,说明至少有一种和法
@@ -2013,7 +2014,7 @@ CJudge.prototype.CheckNormal = function (asStone, cnNormalStone, cnHun, cnGroupe
         //sHuResultTmp.asGroup = vrTemp;
 
         cWinTree.GetPath(j, sHuResultTmp.asGroup, cnGrouped);//111111111111111111
-        this.m_sStonesRelation = new STONESRELATION();
+        this.m_sStonesRelation = new Define.stoneRelation();
         //				if ( EnumerateFans( sHuResultTmp ) == Define.F_NOENOUGHFANS )
 
 
@@ -2021,7 +2022,7 @@ CJudge.prototype.CheckNormal = function (asStone, cnNormalStone, cnHun, cnGroupe
         let eRetTmp = this.EnumerateHunFans(cnGrouped, sHuResultTmp);
         // 比较一下，是否比以前算出的番数大
         if (sHuResultTmp.nMaxFans > sHuResult.nMaxFans) {
-          // sHuResult = _clone(sHuResultTmp);
+          // sHuResult = _.cloneDeep(sHuResultTmp);
           _cpytoobj(sHuResult, sHuResultTmp);
         }
         if (eRetTmp == Define.T_OK) {
@@ -2073,8 +2074,8 @@ CJudge.prototype.GetStonesRelation = function (asHandStone, cnHandStone, sStones
 
   // 计算一下所有牌的花色个数和每种牌个数
   sStonesRelation.cnAllColors = sStonesRelation.cnHandColors;
-  sStonesRelation.acnAllColors = _clone(sStonesRelation.acnHandColors);
-  sStonesRelation.acnAllStones = _clone(sStonesRelation.acnHandStones);
+  sStonesRelation.acnAllColors = _.cloneDeep(sStonesRelation.acnHandColors);
+  sStonesRelation.acnAllStones = _.cloneDeep(sStonesRelation.acnHandStones);
   if (cnHandStone < this.m_cnMaxHandStone) {
     // 吃碰杠的牌
     for (let i = 0; i < this.m_pCheckParam.cnShowGroups; i++) {
@@ -2383,7 +2384,7 @@ CJudge.prototype.GetGroupsInfo = function (sHuResult, sGroupsRelation, sStonesRe
   else {
     // 无分组,只要填写STONESRELATION结构就行了
     //GetStonesRelation( sHuResult.asHandStone, this.m_cnMaxHandStone, sStonesRelation );
-    sStonesRelation = new STONESRELATION();
+    sStonesRelation = new Define.stoneRelation();
     for (let i = 0; i < 14; i++) {
       let nColor = sHuResult.asHandStone[i].nColor;
       let nWhat = sHuResult.asHandStone[i].nWhat;
@@ -4385,7 +4386,7 @@ CJudge.prototype.CheckBianZang = function (sHuResult, that) {
   }
 
   // 先搜索到最后摸的那张牌的花色、数字和所在分组号
-  let sWinTileInfo = new tagTileInfo();
+  let sWinTileInfo = new Define.tagTileInfo();
   if (!that.GetTileInfo(that.m_pCheckParam.asHandStone[0].nID, sHuResult.asGroup, sWinTileInfo)) {
     // 居然没找到
     return 0;
@@ -4442,7 +4443,7 @@ CJudge.prototype.CheckKanZang = function (sHuResult, that) {
   }
 
   // 先搜索到最后摸的那张牌的花色和数字
-  let sWinTileInfo = new tagTileInfo();
+  let sWinTileInfo = new Define.tagTileInfo();
   if (!that.GetTileInfo(that.m_pCheckParam.asHandStone[0].nID, sHuResult.asGroup, sWinTileInfo)) {
     // 居然没找到
     return 0;
@@ -5125,9 +5126,9 @@ CJudge.prototype.CheckChi = function (sCheckParam, asShowGroup) {
   for (i = 0; i <= 2; i++) {
     if (anRelateIndex[i] != -1 && anRelateIndex[i + 1] != -1 && anRelateIndex[i + 2] != -1) {
       asShowGroup[cnEatGroup].nGroupStyle = Define.GROUP_STYLE_SHUN;
-      asShowGroup[cnEatGroup].asStone[0] = _clone(sCheckParam.asHandStone[anRelateIndex[i]]);
-      asShowGroup[cnEatGroup].asStone[1] = _clone(sCheckParam.asHandStone[anRelateIndex[i + 1]]);
-      asShowGroup[cnEatGroup].asStone[2] = _clone(sCheckParam.asHandStone[anRelateIndex[i + 2]]);
+      asShowGroup[cnEatGroup].asStone[0] = _.cloneDeep(sCheckParam.asHandStone[anRelateIndex[i]]);
+      asShowGroup[cnEatGroup].asStone[1] = _.cloneDeep(sCheckParam.asHandStone[anRelateIndex[i + 1]]);
+      asShowGroup[cnEatGroup].asStone[2] = _.cloneDeep(sCheckParam.asHandStone[anRelateIndex[i + 2]]);
       cnEatGroup++;
     }
   }
@@ -5154,9 +5155,9 @@ CJudge.prototype.CheckPeng = function (sCheckParam, asShowGroup) {
       cnSameStone++;
       if (cnSameStone >= 3) {
         asShowGroup[3].nGroupStyle = Define.GROUP_STYLE_KE;
-        asShowGroup[3].asStone[0] = _clone(sCheckParam.asHandStone[0]);
-        asShowGroup[3].asStone[1] = _clone(sCheckParam.asHandStone[0]);
-        asShowGroup[3].asStone[2] = _clone(sCheckParam.asHandStone[0]);
+        asShowGroup[3].asStone[0] = _.cloneDeep(sCheckParam.asHandStone[0]);
+        asShowGroup[3].asStone[1] = _.cloneDeep(sCheckParam.asHandStone[0]);
+        asShowGroup[3].asStone[2] = _.cloneDeep(sCheckParam.asHandStone[0]);
         return 1;
       }
     }
@@ -5196,10 +5197,10 @@ CJudge.prototype.CheckGang = function (sCheckParam, asShowGroup) {
             asShowGroup[cnGang].nGroupStyle = Define.GROUP_STYLE_ANGANG;
           }
 
-          asShowGroup[4].asStone[0] = _clone(sCheckParam.asHandStone[nCheckIndex]);
-          asShowGroup[4].asStone[1] = _clone(sCheckParam.asHandStone[nCheckIndex]);
-          asShowGroup[4].asStone[2] = _clone(sCheckParam.asHandStone[nCheckIndex]);
-          asShowGroup[4].asStone[3] = _clone(sCheckParam.asHandStone[nCheckIndex]);
+          asShowGroup[4].asStone[0] = _.cloneDeep(sCheckParam.asHandStone[nCheckIndex]);
+          asShowGroup[4].asStone[1] = _.cloneDeep(sCheckParam.asHandStone[nCheckIndex]);
+          asShowGroup[4].asStone[2] = _.cloneDeep(sCheckParam.asHandStone[nCheckIndex]);
+          asShowGroup[4].asStone[3] = _.cloneDeep(sCheckParam.asHandStone[nCheckIndex]);
           cnGang++;
           return cnGang;
         }
@@ -5216,8 +5217,8 @@ CJudge.prototype.CheckGang = function (sCheckParam, asShowGroup) {
         }
         // 肯定可以杠
         asShowGroup[4].nGroupStyle = Define.GROUP_STYLE_MINGGANG;
-        asShowGroup[4].asStone[0] = _clone(sCheckParam.asHandStone[nCheckIndex]);
-        _memcpy(asShowGroup[4].asStone, 1, sCheckParam.asShowGroup[i].asStone, 0, 3);
+        asShowGroup[4].asStone[0] = _.cloneDeep(sCheckParam.asHandStone[nCheckIndex]);
+        Define._memcpy(asShowGroup[4].asStone, 1, sCheckParam.asShowGroup[i].asStone, 0, 3);
         cnGang++;
         break;
       }
@@ -7920,30 +7921,29 @@ judge.createjudge = function (rule) {
   let obj = CJudge.create(rule);
   return obj;
 };
-judge.FAN = FAN;
-judge.STONE = STONE;
-judge.tagTileInfo = tagTileInfo;
-judge.tagFanInfo = tagFanInfo;
+judge.FAN = Define.fanObj;
+judge.STONE = Define.stoneObj;
+judge.tagTileInfo = Define.tagTileInfo;
+judge.tagFanInfo = Define.tagFanInfo;
 judge.tagCallTileInfo = tagCallTileInfo;
 judge.createtagCallInfo = function () {
-  let obj = tagCallInfo.create();
+  let obj = new Define.tagCallInfo();
   return obj;
 };
 judge.createGROUPSRELATION = function () {
-  let obj = groupsRelation.create();
+  let obj = new Define.groupsRelation();
   return obj;
 };
 judge.createSTONEGROUP = function () {
-  let obj = STONEGROUP.create();
+  let obj = new Define.stoneGroup();
   return obj;
 };
 judge.createCHECKPARAM = function () {
-  let obj = CHECKPARAM.create();
+  let obj = new Define.checkParam();
   return obj;
 };
 judge.createHURESULT = function () {
-  let obj = HURESULT.create();
+  let obj = new Define.huresult();
   return obj;
 };
-judge._memcpy = _memcpy;
-judge._clone = _clone;
+

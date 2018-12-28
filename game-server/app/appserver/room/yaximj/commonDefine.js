@@ -611,7 +611,7 @@ Define.huresult = class huresult {
 ////////////////////////////
 /////////////////////////////
 
-let _memcpy = function (toobj, toobjidx, fromobj, fromobjidx, len) { //???待定
+Define._memcpy = function (toobj, toobjidx, fromobj, fromobjidx, len) { //???待定
   if (toobj.constructor == Array && fromobj.constructor == Array) {
     for (let i = 0; i < len; i++) {
       toobj[toobjidx + i] = _.cloneDeep(fromobj[fromobjidx + i]);
