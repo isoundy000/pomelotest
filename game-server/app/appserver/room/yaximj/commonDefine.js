@@ -322,8 +322,8 @@ Define.FAN_19JONG = 100;  // "么九头" 由序数牌的19做将牌
 
 ////
 Define.T_OK = 0;
-Define.F_NOENOUGHFANS = 1;
-Define.F_NOTTING = 2;
+Define.F_NOENOUGHFANS = 1;  // 番数不足
+Define.F_NOTTING = 2;  // 没听
 
 Define.RULE_GB = 0;
 Define.RULE_PUBLIC = 1;

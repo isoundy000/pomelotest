@@ -29,7 +29,7 @@ class CJudgeDecorator {
 
 		this.FillCheckParam(arrHandCards, oneCardIndex, weaveItem, weaveItemCount, cbHuaPaiCardData, cbHuaPaiCount, nWinMode, nMenWind, checkParam);
 
-		let huResult = Judge.createHURESULT();
+		let huResult = new Define.huresult();
 		let checkResult = this.m_pJudge.CheckWin(checkParam, huResult);
 		if (checkResult == Define.F_NOENOUGHFANS || checkResult == Define.T_OK) {
 			// 和牌，填充
@@ -81,8 +81,9 @@ class CJudgeDecorator {
 	CheckShowTile(arrHandCards, oneCardIndex, weaveItem, weaveItemCount, cbHuaPaiCardData, cbHuaPaiCount, nCheckMask, bZiMo, nMenWind, mahGroup) {
 		let sCheckParam = new Define.checkParam();
 		let nWinMode = 0;
-		if (bZiMo)
+		if (bZiMo) {
 			nWinMode |= Define.WIN_MODE_ZIMO;
+		}
 		this.FillCheckParam(arrHandCards, oneCardIndex, weaveItem, weaveItemCount, cbHuaPaiCardData, cbHuaPaiCount, nWinMode, nMenWind, sCheckParam);
 
 		let count = this.m_pJudge.CheckShowTile(sCheckParam, nCheckMask, mahGroup);
