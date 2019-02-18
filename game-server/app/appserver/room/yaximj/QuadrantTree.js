@@ -1,8 +1,6 @@
 let Define = require('./Define');
-
-let Judge = require('./Judge');
-let STONE = Judge.STONE;
-
+let STONE = Define.stoneObj;
+const _ = require('lodash');
 class CQuadrantTree {
 	constructor() {
 		this.MAXNODES = 341;
@@ -24,7 +22,7 @@ class CQuadrantTree {
 			this.m_anLeafIndex[i] = 0;
 		}
 		for (let i = 0; i < this.MAXNODES; i++) {
-			this.m_asNode[i] = Judge.createSTONEGROUP();
+			this.m_asNode[i] = new Define.stoneGroup();
 		}
 		this.m_cnPath = 0;
 	}
@@ -79,13 +77,13 @@ class CQuadrantTree {
 		let nIndex = this.m_anLeafIndex[nPathIndex];
 		while (nIndex > 0) {
 			console.log("ppppppppppppppppppppppp" + nIndex + ":::" + JSON.stringify(this.m_asNode[nIndex]))
-			asGroup[cnGroup] = Judge._clone(this.m_asNode[nIndex]);
+			asGroup[cnGroup] = _.cloneDeep(this.m_asNode[nIndex]);
 			nIndex = (nIndex - 1) >> 2;
 			cnGroup++;
 		}
 
 		// 再将根结点拷进去
-		asGroup[cnGroup] = Judge._clone(this.m_asNode[0]);
+		asGroup[cnGroup] = _.cloneDeep(this.m_asNode[0]);
 		//console.log("ppppppppppppppppppppppptt"+JSON.stringify(asGroup))
 		////console.log("mmmmmmmm_anLeafIndex:"+JSON.stringify(this.m_anLeafIndex)+":::this.m_asNode:"+JSON.stringify(this.m_asNode))
 		return true;
@@ -106,7 +104,7 @@ class CQuadrantTree {
 		// 当前结点下标
 		let nIndex = (nParentIndex << 2) + nChild + 1;
 		// 初始化当前要用到的结点
-		this.m_asNode[nIndex] = Judge.createSTONEGROUP();
+		this.m_asNode[nIndex] = new Define.stoneGroup();
 
 		// 顺余牌数组
 		let asSpareStone = [];
@@ -178,9 +176,9 @@ class CQuadrantTree {
 		let cnSpareHun = cnHun;	// 剩余的混
 
 		// 初始化当前要用到的结点
-		this.m_asNode[nIndex] = Judge.createSTONEGROUP();
+		this.m_asNode[nIndex] = new Define.stoneGroup();
 		this.m_asNode[nIndex].nGroupStyle = Define.GROUP_STYLE_KE;
-		this.m_asNode[nIndex].asStone[0] = Judge._clone(asStone[0]);
+		this.m_asNode[nIndex].asStone[0] = _.cloneDeep(asStone[0]);
 
 		let cnSameStone = 1;
 		let i = 1;
@@ -189,7 +187,7 @@ class CQuadrantTree {
 				// 都是不相干的牌了
 				break;
 			}
-			this.m_asNode[nIndex].asStone[cnSameStone] = Judge._clone(asStone[i]);
+			this.m_asNode[nIndex].asStone[cnSameStone] = _.cloneDeep(asStone[i]);
 			cnSameStone++;
 			if (cnSameStone == 3) {
 				// 已找到3张了
@@ -213,7 +211,7 @@ class CQuadrantTree {
 				return true;
 			}
 			//console.log("ggggggggg"+JSON.stringify(asSpareStone))
-			Judge._memcpy(asSpareStone, 0, asStone, i, (cnSpareStone + cnSpareHun));
+			Define._memcpy(asSpareStone, 0, asStone, i, (cnSpareStone + cnSpareHun));
 
 			let bSuccess = this.CreateLeftChild(nIndex, this.LEFT1CHILD,
 				asSpareStone, cnSpareStone, cnSpareHun);
@@ -240,7 +238,7 @@ class CQuadrantTree {
 	// **************************************************************************************
 	CreateHunLeaf(nLeafIndex, asHun, idx) {
 		this.m_asNode[nLeafIndex].nGroupStyle = Define.GROUP_STYLE_HUN;
-		Judge._memcpy(this.m_asNode[nLeafIndex].asStone, 0, asHun, idx, 3);
+		Define._memcpy(this.m_asNode[nLeafIndex].asStone, 0, asHun, idx, 3);
 		this.m_anLeafIndex[this.m_cnPath] = nLeafIndex;
 		this.m_cnPath++;
 	}
@@ -322,7 +320,7 @@ class CQuadrantTree {
 		// 如果这个分组缺牌，用混填充
 		let cnScrapHun = cnHun;	// 剩下的混数
 		let asHun = [];
-		Judge._memcpy(asHun, 0, asStone, cnNormalStone, (asStone.length - cnNormalStone - 1));
+		Define._memcpy(asHun, 0, asStone, cnNormalStone, (asStone.length - cnNormalStone - 1));
 		let perdata = this.PerfectGroup(sGroup, nBaseIndex, asHun, cnScrapHun)
 		if (!perdata.mark) {
 			return false;
@@ -330,7 +328,7 @@ class CQuadrantTree {
 		cnScrapHun = perdata.Hun;
 
 		// 终于分好了，剩下的牌应该是中间的几张
-		Judge._memcpy(asSpareStone, cnScrapStone, asStone, i /*+ 1*/, (cnNormalStone + cnHun - i/* - 1 */));
+		Define._memcpy(asSpareStone, cnScrapStone, asStone, i /*+ 1*/, (cnNormalStone + cnHun - i/* - 1 */));
 
 		// 剩下的普通牌数 = 原普通牌数 - 3 + 用掉的混数
 		cnNormalStone = cnNormalStone - 3 + cnHun - cnScrapHun;
@@ -440,7 +438,7 @@ class CQuadrantTree {
 				}
 				// 在最后面取一张混
 				cnHun--;
-				sGroup.asStone[i] = Judge._clone(asHun[cnHun]);
+				sGroup.asStone[i] = _.cloneDeep(asHun[cnHun]);
 				// 将这张混变成需要的牌
 				sGroup.asStone[i].nColor = sGroup.asStone[nBaseIndex].nColor;
 				if (sGroup.nGroupStyle == Define.GROUP_STYLE_SHUN) {

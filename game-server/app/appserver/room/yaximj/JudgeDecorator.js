@@ -188,7 +188,7 @@ class CJudgeDecorator {
 	/* 转换成疯狂麻将的组结构
 	 /************************************************************************/
 	SwitchToStoneGroup(weaveItem) {
-		let stoneGroup = Judge.createSTONEGROUP();
+		let stoneGroup = new Define.stoneGroup();
 		if (weaveItem.cbWeaveKind & FKMJConstData.WIK_LEFT) {
 			stoneGroup.nGroupStyle = Define.GROUP_STYLE_SHUN;
 			let stone = this.SwitchToStone(weaveItem.cbCenterCard);

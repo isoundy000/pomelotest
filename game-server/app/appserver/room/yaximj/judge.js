@@ -370,8 +370,6 @@ CJudge.prototype.Init = function () {
     this.m_asAllStone[i].nID = (Define.COLOR_JIAN << 8) + ((i - 31) << 4) + 0x0f;
   }
 
-  //TO_决定: 加载番种树
-  //return SetFanTree( ".\\fans.dat" );
   return true;
 }
 
@@ -516,48 +514,6 @@ CJudge.prototype.Check9LianBaoDen = function (sHuResult, that) {
 
 // **************************************************************************************
 //
-// 设置算番树
-// 111111111111111111111111111111111111111111111
-// **************************************************************************************
-CJudge.prototype.SetFanTree = function (szFileName) {
-  //// 从文件初始化算番入口集
-  //let szStream="";
-  //let szSection="" ;
-  //let szKeyName="" ;
-  //let pStream;
-  //let nFanID;
-  //let cnRead = 0;
-  //for( let i = 0; i < 9; i++ )
-  //{
-  //    szSection = "mode"+ i.toString() ;
-  //    for( let j = 0; j < 6; j++ )
-  //    {
-  //        // 先清空
-  //        this.m_avFansEntry[i][j]=[];
-  //
-  //        // 读取对应的条目
-  //        szKeyName="color"+ j.toString();
-  //        cnRead += GetPrivateProfileString(szSection, szKeyName, "" , szStream,
-  //            sizeof( szStream ), szFileName );//11111111111111111111
-  //
-  //        // 从读入的string里取得一个var流，逐个填充到入口集里
-  //        if ( szStream[0] != 0 )
-  //        {
-  //            pStream = szStream;
-  //            while ( pStream && pStream[0] != 0 )
-  //            {
-  //                pStream = this.GetPrivateInt( pStream, nFanID );
-  //                this.m_avFansEntry[i][j].push( nFanID );
-  //            }
-  //        }
-  //    }
-  //}
-  //
-  //return cnRead != 0;
-}
-
-// **************************************************************************************
-//
 // 设置规则(国标/大众)
 //
 // **************************************************************************************
@@ -573,7 +529,7 @@ CJudge.prototype.SetRule = function (eRule, bHasHun) {
 // **************************************************************************************
 CJudge.prototype.SetHun = function (nHun) {
   this.m_nHunID = nHun;
-  //蔡洲董：判断其原有代码的混牌判断方式不正确，m_nHunID[2]不会是相同的两张牌，而IsHun
+  //判断其原有代码的混牌判断方式不正确，m_nHunID[2]不会是相同的两张牌，而IsHun
   //		  中的参数却要满足与两张牌相同，这显然并不合理，故而改成使用一张牌作为混牌
   //m_nHunID[0] = nHunID; // chenjian 2007.10.30
   //m_nHunID[1] = nSecondHunID;
