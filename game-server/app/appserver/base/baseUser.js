@@ -13,9 +13,7 @@ class baseUser {
     this.gold = 0;
     this.bean = 0;
     this.sex = 0;
-    this.outCards = [];
-    this.operator = [];
-    this.cards = [];
+    this.mobile = "";
   };
   getBaseInfo(user) {
     let userInfo = {};

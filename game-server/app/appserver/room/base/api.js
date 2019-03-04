@@ -1,5 +1,6 @@
 const Define = require('./commonDefine');
 const constData = require('./constData');
+let logger = require('pomelo-logger').getLogger('con-log');
 const _ = require('lodash');
 //////////////////////////////////////////////////////////////////////////
 
@@ -44,29 +45,24 @@ let tagAnalyseItem = function () {
 
 //////////////////////////////////////////////////////////////////////////
 
-let FKMJApi = class {
+let MJApi = class {
   constructor() {
     this.m_cbHunCard = 0;						//混牌
   }
-  _CopyMemory(arrayTo, arrayFrom) {
-    for (var i = 0; i < arrayFrom.length; i++) {
-      arrayTo[i] = (arrayFrom[i]);
-    }
-  }
 
   _ZeroMemory(array, num) {
-    for (var i = 0; i < num; i++) {
+    for (let i = 0; i < num; i++) {
       array[i] = 0;
     }
   }
   //混乱扑克
   RandCardData(cbCardData, cbMaxCount) {
     ////混乱准备
-    //var cbCardDataTemp=[];
+    //let cbCardDataTemp=[];
     //_CopyMemory(cbCardDataTemp,cbCardData);
     //
     ////混乱扑克
-    //var cbRandCount=0,cbPosition=0;
+    //let cbRandCount=0,cbPosition=0;
     //do
     //{
     //    cbPosition=rand()%(cbMaxCount-cbRandCount);
@@ -79,7 +75,7 @@ let FKMJApi = class {
   //删除扑克
   RemoveCard(cbCardIndex, cbRemoveCard) {
     //删除扑克
-    var cbRemoveIndex = this.SwitchToCardIndex(cbRemoveCard);
+    let cbRemoveIndex = this.SwitchToCardIndex(cbRemoveCard);
     if (cbCardIndex[cbRemoveIndex] > 0) {
       cbCardIndex[cbRemoveIndex]--;
       return true;
@@ -89,14 +85,14 @@ let FKMJApi = class {
   }
 
   //删除扑克
-  RemoveCard(cbCardIndex, cbRemoveCard, cbRemoveCount) {
+  RemoveCard3(cbCardIndex, cbRemoveCard, cbRemoveCount) {
     //删除扑克
-    for (var i = 0; i < cbRemoveCount; i++) {
+    for (let i = 0; i < cbRemoveCount; i++) {
       //删除扑克
-      var cbRemoveIndex = this.SwitchToCardIndex(cbRemoveCard[i]);
+      let cbRemoveIndex = this.SwitchToCardIndex(cbRemoveCard[i]);
       if (cbCardIndex[cbRemoveIndex] == 0) {
         //还原删除
-        for (var j = 0; j < i; j++) {
+        for (let j = 0; j < i; j++) {
           cbCardIndex[this.SwitchToCardIndex(cbRemoveCard[j])]++;
         }
 
@@ -112,16 +108,16 @@ let FKMJApi = class {
   }
 
   //删除扑克
-  RemoveCard(cbCardData, cbCardCount, cbRemoveCard, cbRemoveCount) {
+  RemoveCard4(cbCardData, cbCardCount, cbRemoveCard, cbRemoveCount) {
 
     //定义变量
-    var cbDeleteCount = 0, cbTempCardData = [];
+    let cbDeleteCount = 0;
+    let cbTempCardData = _.cloneDeep(cbCardData);
     if (cbCardCount > 14)
       return false;
-    this._CopyMemory(cbTempCardData, cbCardData);
     //置零扑克
-    for (var i = 0; i < cbRemoveCount; i++) {
-      for (var j = 0; j < cbCardCount; j++) {
+    for (let i = 0; i < cbRemoveCount; i++) {
+      for (let j = 0; j < cbCardCount; j++) {
         if (cbRemoveCard[i] == cbTempCardData[j]) {
           cbDeleteCount++;
           cbTempCardData[j] = 0;
@@ -136,8 +132,8 @@ let FKMJApi = class {
     }
 
     //清理扑克
-    var cbCardPos = 0;
-    for (var i = 0; i < cbCardCount; i++) {
+    let cbCardPos = 0;
+    for (let i = 0; i < cbCardCount; i++) {
       if (cbTempCardData[i] != 0)
         cbCardData[cbCardPos++] = cbTempCardData[i];
     }
@@ -147,8 +143,8 @@ let FKMJApi = class {
 
   //有效判断
   IsValidCard(cbCardData) {
-    var cbValue = (cbCardData & constData.MASK_VALUE);
-    var cbColor = (cbCardData & constData.MASK_COLOR) >> 4;
+    let cbValue = (cbCardData & constData.MASK_VALUE);
+    let cbColor = (cbCardData & constData.MASK_COLOR) >> 4;
     if ((cbColor >= Define.COLOR_WAN && cbColor <= Define.COLOR_BING) && (cbValue >= 1 && cbValue <= 9))
       return true;
     else if (cbColor == Define.COLOR_FENG_JIAN && (cbValue >= 1 && cbValue <= 7))
@@ -158,19 +154,17 @@ let FKMJApi = class {
     else
       return false;
   }
+
   //是不是花
   IsHua(cbCardData) {
     return ((cbCardData & constData.MASK_COLOR) >> 4) == Define.COLOR_HUA;
-
   }
-
-
 
   //扑克数目
   GetCardCount(cbCardIndex) {
     //数目统计
-    var cbCardCount = 0;
-    for (var i = 0; i < constData.MAX_INDEX; i++)
+    let cbCardCount = 0;
+    for (let i = 0; i < constData.MAX_INDEX; i++)
       cbCardCount += cbCardIndex[i];
 
     return cbCardCount;
@@ -264,14 +258,14 @@ let FKMJApi = class {
       return constData.WIK_NULL;
 
     //变量定义
-    var cbExcursion = [0, 1, 2];
-    var cbItemKind = [constData.WIK_LEFT, constData.WIK_CENTER, constData.WIK_RIGHT];
+    let cbExcursion = [0, 1, 2];
+    let cbItemKind = [constData.WIK_LEFT, constData.WIK_CENTER, constData.WIK_RIGHT];
 
     //吃牌判断
-    var cbEatKind = 0, cbFirstIndex = 0;
-    var cbCurrentIndex = this.SwitchToCardIndex(cbCurrentCard);
-    for (var i = 0; i < cbItemKind.length; i++) {
-      var cbValueIndex = cbCurrentIndex % 9;
+    let cbEatKind = 0, cbFirstIndex = 0;
+    let cbCurrentIndex = this.SwitchToCardIndex(cbCurrentCard);
+    for (let i = 0; i < cbItemKind.length; i++) {
+      let cbValueIndex = cbCurrentIndex % 9;
       if ((cbValueIndex >= cbExcursion[i]) && ((cbValueIndex - cbExcursion[i]) <= 6)) {
         //吃牌判断
         cbFirstIndex = cbCurrentIndex - cbExcursion[i];
@@ -305,14 +299,13 @@ let FKMJApi = class {
   //听牌分析
   AnalyseTingCard(cbCardIndex, WeaveItem, cbItemCount, dwChiHuRight) {
     //变量定义
-    var ChiHuResult = new tagChiHuResult();
+    let ChiHuResult = new tagChiHuResult();
 
     //构造扑克
-    var cbCardIndexTemp = [];
-    this._CopyMemory(cbCardIndexTemp, cbCardIndex);
+    let cbCardIndexTemp = _.cloneDeep(cbCardIndex);
 
     //听牌分析
-    for (var i = 0; i < constData.MAX_INDEX; i++) {
+    for (let i = 0; i < constData.MAX_INDEX; i++) {
       //空牌过滤
       if (cbCardIndexTemp[i] == 0)
         continue;
@@ -321,10 +314,10 @@ let FKMJApi = class {
       cbCardIndexTemp[i]--;
 
       //听牌判断
-      for (var j = 0; j < constData.MAX_INDEX; j++) {
+      for (let j = 0; j < constData.MAX_INDEX; j++) {
         //胡牌分析
-        var cbCurrentCard = this.SwitchToCardData(j);
-        var cbHuCardKind = this.AnalyseChiHuCard(cbCardIndexTemp, WeaveItem, cbItemCount, cbCurrentCard, dwChiHuRight, ChiHuResult);
+        let cbCurrentCard = this.SwitchToCardData(j);
+        let cbHuCardKind = this.AnalyseChiHuCard(cbCardIndexTemp, WeaveItem, cbItemCount, cbCurrentCard, dwChiHuRight, ChiHuResult);
 
         //结果判断
         if (cbHuCardKind != constData.CHK_NULL)
@@ -341,9 +334,9 @@ let FKMJApi = class {
   //杠牌分析
   AnalyseGangCard(cbCardIndex, WeaveItem, cbWeaveCount, GangCardResult) {
     //设置变量
-    var cbActionMask = constData.WIK_NULL;
+    let cbActionMask = constData.WIK_NULL;
     //手上杠牌
-    for (var i = 0; i < constData.MAX_INDEX; i++) {
+    for (let i = 0; i < constData.MAX_INDEX; i++) {
       if (cbCardIndex[i] == 4) {
         cbActionMask |= constData.WIK_GANG;
         GangCardResult.cbCardData[GangCardResult.cbCardCount] = constData.WIK_GANG;
@@ -352,7 +345,7 @@ let FKMJApi = class {
     }
 
     //组合杠牌
-    for (var i = 0; i < cbWeaveCount; i++) {
+    for (let i = 0; i < cbWeaveCount; i++) {
       if (WeaveItem[i].cbWeaveKind == constData.WIK_PENG) {
         if (cbCardIndex[this.SwitchToCardIndex(WeaveItem[i].cbCenterCard)] == 1) {
           cbActionMask |= constData.WIK_GANG;
@@ -368,23 +361,24 @@ let FKMJApi = class {
   //吃胡分析
   AnalyseChiHuCard(cbCardIndex, WeaveItem, cbWeaveCount, cbCurrentCard, dwChiHuRight, ChiHuResult) {
     //变量定义
-    var dwChiHuKind = constData.CHK_NULL;
+    let dwChiHuKind = constData.CHK_NULL;
     //   static CAnalyseItemArray AnalyseItemArray;
-    var AnalyseItemArray = [];
+    let AnalyseItemArray = [];
     //设置变量
     //    AnalyseItemArray.RemoveAll();
 
     //构造扑克
-    var cbCardIndexTemp = [];
-    this._CopyMemory(cbCardIndexTemp, cbCardIndex);
+    let cbCardIndexTemp = _.cloneDeep(cbCardIndex);
 
     //插入扑克
-    if (cbCurrentCard != 0)
+    if (cbCurrentCard != 0) {
       cbCardIndexTemp[this.SwitchToCardIndex(cbCurrentCard)]++;
+    }
 
     //权位处理
-    if ((cbCurrentCard != 0) && (cbWeaveCount == 4))
+    if ((cbCurrentCard != 0) && (cbWeaveCount == 4)) {
       dwChiHuRight |= constData.CHK_QUAN_QIU_REN;
+    }
     //////////------------
     //分析扑克
     this.AnalyseCard(cbCardIndexTemp, WeaveItem, cbWeaveCount, AnalyseItemArray);
@@ -392,15 +386,15 @@ let FKMJApi = class {
     //胡牌分析
     if (AnalyseItemArray.length > 0) {
       //牌型分析
-      for (var i = 0; i < AnalyseItemArray.length; i++) {
+      for (let i = 0; i < AnalyseItemArray.length; i++) {
         //变量定义
-        var bLianCard = false, bPengCard = false;
-        var pAnalyseItem = _.cloneDeep(AnalyseItemArray[i]);
+        let bLianCard = false, bPengCard = false;
+        let pAnalyseItem = _.cloneDeep(AnalyseItemArray[i]);
 
 
         //牌型分析
-        for (var j = 0; j < pAnalyseItem.cbWeaveKind.length; j++) {
-          var cbWeaveKind = pAnalyseItem.cbWeaveKind[j];
+        for (let j = 0; j < pAnalyseItem.cbWeaveKind.length; j++) {
+          let cbWeaveKind = pAnalyseItem.cbWeaveKind[j];
           bPengCard = ((cbWeaveKind & (constData.WIK_GANG | constData.WIK_PENG)) != 0) ? true : bPengCard;
           bLianCard = ((cbWeaveKind & (constData.WIK_LEFT | constData.WIK_CENTER | constData.WIK_RIGHT)) != 0) ? true : bLianCard;
         }
@@ -424,12 +418,12 @@ let FKMJApi = class {
     //结果判断
     if (dwChiHuKind != constData.CHK_NULL) {
       //变量定义
-      var wGreatHuCount = 0;
-      var dwGreatKind = dwChiHuKind & constData.CHK_MASK_GREAT;
-      var dwGreatRight = dwChiHuRight & constData.CHR_MASK_GREAT;
+      let wGreatHuCount = 0;
+      let dwGreatKind = dwChiHuKind & constData.CHK_MASK_GREAT;
+      let dwGreatRight = dwChiHuRight & constData.CHR_MASK_GREAT;
 
       //番数统计
-      for (var i = 0; i < 32; i++) {
+      for (let i = 0; i < 32; i++) {
         //设置变量
         dwGreatKind >>= 1;
         dwGreatRight >>= 1;
@@ -458,10 +452,10 @@ let FKMJApi = class {
     if (cbWeaveCount != 0) return false;
 
     //扑克判断
-    var bCardEye = false;
+    let bCardEye = false;
 
     //一九判断
-    for (var i = 0; i < 27; i += 9) {
+    for (let i = 0; i < 27; i += 9) {
       //无效判断
       if (cbCardIndex[i] == 0) return false;
       if (cbCardIndex[i + 8] == 0) return false;
@@ -472,7 +466,7 @@ let FKMJApi = class {
     }
 
     //番子判断
-    for (var i = 27; i < constData.MAX_INDEX; i++) {
+    for (let i = 27; i < constData.MAX_INDEX; i++) {
       if (cbCardIndex[i] == 0) return false;
       if ((bCardEye == false) && (cbCardIndex[i] == 2)) bCardEye = true;
     }
@@ -486,9 +480,9 @@ let FKMJApi = class {
   //清一色牌
   IsQingYiSe(cbCardIndex, tagWeaveItem, cbItemCount) {
     //胡牌判断
-    var cbCardColor = 0x00FF;
+    let cbCardColor = 0x00FF;
 
-    for (var i = 0; i < constData.MAX_INDEX; i++) {
+    for (let i = 0; i < constData.MAX_INDEX; i++) {
       if (cbCardIndex[i] != 0) {
         //花色判断
         if (cbCardColor != 0x00FF)
@@ -503,8 +497,8 @@ let FKMJApi = class {
     }
 
     //组合判断
-    for (var i = 0; i < cbItemCount; i++) {
-      var cbCenterCard = tagWeaveItem[i].cbCenterCard;
+    for (let i = 0; i < cbItemCount; i++) {
+      let cbCenterCard = tagWeaveItem[i].cbCenterCard;
       if ((cbCenterCard & constData.MASK_COLOR) != cbCardColor)
         return false;
     }
@@ -518,8 +512,8 @@ let FKMJApi = class {
       return false;
 
     //扑克判断
-    for (var i = 0; i < constData.MAX_INDEX; i++) {
-      var cbCardCount = cbCardIndex[i];
+    for (let i = 0; i < constData.MAX_INDEX; i++) {
+      let cbCardCount = cbCardIndex[i];
       if ((cbCardCount != 0) && (cbCardCount != 2) && (cbCardCount != 4))
         return false;
     }
@@ -545,8 +539,8 @@ let FKMJApi = class {
     cbCardData &= 0x00FF;
     if (!this.IsValidCard(cbCardData)) return 0;
 
-    var color = (cbCardData & constData.MASK_COLOR) >> 4;
-    var value = (cbCardData & constData.MASK_VALUE);
+    let color = (cbCardData & constData.MASK_COLOR) >> 4;
+    let value = (cbCardData & constData.MASK_VALUE);
     if (color == Define.COLOR_WAN || color == Define.COLOR_TIAO || color == Define.COLOR_BING) {
       return color * 9 + value - 1;
     }
@@ -562,10 +556,10 @@ let FKMJApi = class {
   //扑克转换
   SwitchToCardData1(cbCardIndex, cbCardData) {
     //转换扑克
-    var cbPosition = 0;
-    for (var i = 0; i < constData.MAX_INDEX; i++) {
+    let cbPosition = 0;
+    for (let i = 0; i < constData.MAX_INDEX; i++) {
       if (cbCardIndex[i] != 0) {
-        for (var j = 0; j < cbCardIndex[i]; j++) {
+        for (let j = 0; j < cbCardIndex[i]; j++) {
           cbCardData[cbPosition++] = this.SwitchToCardData(i);
         }
       }
@@ -580,8 +574,10 @@ let FKMJApi = class {
     this._ZeroMemory(cbCardIndex, constData.MAX_INDEX);
 
     //转换扑克
-    for (var i = 0; i < cbCardCount; i++) {
-      if (0 == this.SwitchToCardIndex(cbCardData[i])) console.log("ccccccccccccccccccc:" + i + ":" + cbCardData[i]);
+    for (let i = 0; i < cbCardCount; i++) {
+      if (0 == this.SwitchToCardIndex(cbCardData[i])) {
+        logger.info("ccccccccccccccccccc:" + i + ":" + cbCardData[i])
+      };
       cbCardIndex[this.SwitchToCardIndex(cbCardData[i])]++;
     }
 
@@ -591,22 +587,22 @@ let FKMJApi = class {
   //分析扑克
   AnalyseCard(cbCardIndex, tagWeaveItem, cbWeaveCount, AnalyseItemArray) {
     //计算数目
-    var cbCardCount = 0;
-    for (var i = 0; i < constData.MAX_INDEX; i++)
+    let cbCardCount = 0;
+    for (let i = 0; i < constData.MAX_INDEX; i++)
       cbCardCount += cbCardIndex[i];
     //效验数目
     if ((cbCardCount < 2) || (cbCardCount > constData.MAX_COUNT) || ((cbCardCount - 2) % 3 != 0))
       return false;
 
     //变量定义
-    var cbKindItemCount = 0;
-    var KindItem = [];
-    for (var i = 0; i < constData.MAX_COUNT - 2; i++) {
+    let cbKindItemCount = 0;
+    let KindItem = [];
+    for (let i = 0; i < constData.MAX_COUNT - 2; i++) {
       KindItem.push(new tagKindItem());
     }
 
     //需求判断
-    var cbLessKindItem = (cbCardCount - 2) / 3;
+    let cbLessKindItem = parseInt((cbCardCount - 2) / 3);
 
     //单吊判断
     if (cbLessKindItem == 0) {
@@ -614,13 +610,13 @@ let FKMJApi = class {
       //        ASSERT((cbCardCount==2)&&(cbWeaveCount==4));
 
       //牌眼判断
-      for (var i = 0; i < constData.MAX_INDEX; i++) {
+      for (let i = 0; i < constData.MAX_INDEX; i++) {
         if (cbCardIndex[i] == 2) {
           //变量定义
-          var AnalyseItem = new tagAnalyseItem();
+          let AnalyseItem = new tagAnalyseItem();
 
           //设置结果
-          for (var j = 0; j < cbWeaveCount; j++) {
+          for (let j = 0; j < cbWeaveCount; j++) {
             AnalyseItem.cbWeaveKind[j] = tagWeaveItem[j].cbWeaveKind;
             AnalyseItem.cbCenterCard[j] = tagWeaveItem[j].cbCenterCard;
           }
@@ -638,7 +634,7 @@ let FKMJApi = class {
 
     //拆分分析
     if (cbCardCount >= 3) {
-      for (var i = 0; i < constData.MAX_INDEX; i++) {
+      for (let i = 0; i < constData.MAX_INDEX; i++) {
         //同牌判断
         if (cbCardIndex[i] >= 3) {
           KindItem[cbKindItemCount].cbCardIndex[0] = i;
@@ -650,7 +646,7 @@ let FKMJApi = class {
 
         //连牌判断
         if ((i < (constData.MAX_INDEX - 9)) && (cbCardIndex[i] > 0) && ((i % 9) < 7)) {
-          for (var j = 1; j <= cbCardIndex[i]; j++) {
+          for (let j = 1; j <= cbCardIndex[i]; j++) {
             if ((cbCardIndex[i + 1] >= j) && (cbCardIndex[i + 2] >= j)) {
               KindItem[cbKindItemCount].cbCardIndex[0] = i;
               KindItem[cbKindItemCount].cbCardIndex[1] = i + 1;
@@ -665,28 +661,27 @@ let FKMJApi = class {
     //组合分析
     if (cbKindItemCount >= cbLessKindItem) {
       //变量定义
-      var cbCardIndexTemp = [];
+      let cbCardIndexTemp = [];
       this._ZeroMemory(cbCardIndexTemp, constData.MAX_INDEX);
 
       //变量定义
-      var cbIndex = [0, 1, 2, 3];
-      var pKindItem = [];
+      let cbIndex = [0, 1, 2, 3];
+      let pKindItem = [];
 
-      for (var i = 0; i < 4; i++) {
+      for (let i = 0; i < 4; i++) {
         pKindItem.push(new tagKindItem());
       }
       //开始组合
       do {
-        //cbCardIndexTemp=[];
+        cbCardIndexTemp = _.cloneDeep(cbCardIndex);
         //设置变量
-        this._CopyMemory(cbCardIndexTemp, cbCardIndex);
-        for (var i = 0; i < cbLessKindItem; i++)
+        for (let i = 0; i < cbLessKindItem; i++)
           pKindItem[i] = _.cloneDeep(KindItem[cbIndex[i]]);
         //数量判断
-        var bEnoughCard = true;
-        for (var i = 0; i < cbLessKindItem * 3; i++) {
+        let bEnoughCard = true;
+        for (let i = 0; i < cbLessKindItem * 3; i++) {
           //存在判断
-          var _cbCardIndex = pKindItem[Math.floor(i / 3)].cbCardIndex[i % 3];
+          let _cbCardIndex = pKindItem[Math.floor(i / 3)].cbCardIndex[i % 3];
           if (cbCardIndexTemp[_cbCardIndex] == 0) {
             bEnoughCard = false;
             break;
@@ -697,8 +692,8 @@ let FKMJApi = class {
         //胡牌判断
         if (bEnoughCard == true) {
           //牌眼判断
-          var cbCardEye = 0;
-          for (var i = 0; i < constData.MAX_INDEX; i++) {
+          let cbCardEye = 0;
+          for (let i = 0; i < constData.MAX_INDEX; i++) {
             if (cbCardIndexTemp[i] == 2) {
               cbCardEye = this.SwitchToCardData(i);
               break;
@@ -707,15 +702,15 @@ let FKMJApi = class {
           //组合类型
           if (cbCardEye != 0) {
             //变量定义
-            var AnalyseItem = new tagAnalyseItem();
+            let AnalyseItem = new tagAnalyseItem();
             //设置组合
-            for (var i = 0; i < cbWeaveCount; i++) {
+            for (let i = 0; i < cbWeaveCount; i++) {
               AnalyseItem.cbWeaveKind[i] = tagWeaveItem[i].cbWeaveKind;
               AnalyseItem.cbCenterCard[i] = tagWeaveItem[i].cbCenterCard;
             }
 
             //设置牌型
-            for (var i = 0; i < cbLessKindItem; i++) {
+            for (let i = 0; i < cbLessKindItem; i++) {
               AnalyseItem.cbWeaveKind[i + cbWeaveCount] = pKindItem[i].cbWeaveKind;
               AnalyseItem.cbCenterCard[i + cbWeaveCount] = pKindItem[i].cbCenterCard;
             }
@@ -729,10 +724,10 @@ let FKMJApi = class {
         }
         //设置索引
         if (cbIndex[cbLessKindItem - 1] == (cbKindItemCount - 1)) {
-          for (var i = cbLessKindItem - 1; i > 0; i--) {
+          for (let i = cbLessKindItem - 1; i > 0; i--) {
             if ((cbIndex[i - 1] + 1) != cbIndex[i]) {
-              var cbNewIndex = cbIndex[i - 1];
-              for (var j = (i - 1); j < cbLessKindItem; j++)
+              let cbNewIndex = cbIndex[i - 1];
+              for (let j = (i - 1); j < cbLessKindItem; j++)
                 cbIndex[j] = cbNewIndex + j - i + 2;
               break;
             }
@@ -764,7 +759,7 @@ let FKMJApi = class {
 //////////////////////////////////////////////////////////////////////////
 
 module.exports = {
-  FKMJApi,
+  MJApi,
   tagKindItem,
   tagWeaveItem,
   tagChiHuResult,

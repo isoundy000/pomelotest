@@ -163,11 +163,13 @@ exp.TIMER_ID = {
   ID_OFFLINE_KCIK: 4,         //掉线一段时间后踢出定时器
   ID_END_TO_CONTINUE: 5,      //一局结束到下一句开始定时器
   ID_DELAY_TO_CLEANEND: 6,    //一局结束延时清理结算
+  ID_BUHUA: 7,                //补花定时器
 };
 
-// 定时器ID
+// 游戏状态
 exp.GAMESTATE = {
   FREE:0,                 // 非游戏状态
   READY: 1,								// 准备状态
   RUN: 2,						      // 游戏状态
+  BUHUA: 4                //补花阶段
 };

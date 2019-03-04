@@ -7,6 +7,10 @@ class user extends baseUser{
     this.online = false;
     this.state = gameState.FREE;
     this.sid = null;
+    this.vrHandCard = [];               //手牌
+    this.vroutHandCard = [];            //已出手牌
+    this.chiPengGang = [];              //吃碰杠列表
+    this.huapai = [];
   };
 
   /**
@@ -25,9 +29,10 @@ class user extends baseUser{
    * 清理玩家信息
    */
   clearUserInfo() {
-    this.outCards = [];
-    this.operator = [];
-    this.cards = [];
+    this.vrHandCard = [];               //手牌
+    this.vroutHandCard = [];            //已出手牌
+    this.chiPengGang = [];              //吃碰杠列表
+    this.huapai = [];
   };
 
   /**
@@ -44,9 +49,10 @@ class user extends baseUser{
       trust: this.trust,
       online: this.online,
       chair: this.chair,
-      outCards: this.outCards,
-      operator: this.operator,
-      cards: (this.uid == uid ? this.cards : [])
+      vroutHandCard: this.vroutHandCard,
+      chiPengGang: this.chiPengGang,
+      huapai: this.huapai,
+      vrHandCard: (this.uid == uid ? this.vrHandCard : [])
     }
   }
 
@@ -85,5 +91,9 @@ class user extends baseUser{
   }
   setReady() {
     this.state = gameState.READY;
+  }
+  // 设置补花
+  setBuHua() {
+    this.state = gameState.BUHUA;
   }
 }

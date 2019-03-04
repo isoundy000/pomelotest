@@ -626,3 +626,7 @@ Define._memcpy = function (toobj, toobjidx, fromobj, fromobjidx, len) { //???待
   //   toobj = _.cloneDeep(fromobj);
   // }
 }
+
+Define.buHuaMsg = function () {
+  
+}
