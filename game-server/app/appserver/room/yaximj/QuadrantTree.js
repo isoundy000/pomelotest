@@ -1,5 +1,4 @@
-let Define = require('./Define');
-let STONE = Define.stoneObj;
+const Define = require('../base/commonDefine');
 const _ = require('lodash');
 class CQuadrantTree {
 	constructor() {
@@ -110,8 +109,8 @@ class CQuadrantTree {
 		let asSpareStone = [];
 		for (let i = 0; i < Define.MAX_HAND_COUNT - 3; i++) {
 
-			////console.log("aaaaaaaaaaaaaaaaaaaaaaa"+Judge.STONE)
-			asSpareStone[i] = new STONE();
+			////console.log("aaaaaaaaaaaaaaaaaaaaaaa"+Judge.Define.stoneObj)
+			asSpareStone[i] = new Define.stoneObj();
 			////console.log("ssssssssssssssssssssss")
 		}
 
@@ -170,7 +169,7 @@ class CQuadrantTree {
 		// 顺余牌数组
 		let asSpareStone = [];
 		for (let j = 0; j < Define.MAX_HAND_COUNT - 3; j++) {
-			asSpareStone[j] = new STONE();
+			asSpareStone[j] = new Define.stoneObj();
 		}
 		let cnSpareStone = cnNormalStone;
 		let cnSpareHun = cnHun;	// 剩余的混
@@ -341,7 +340,7 @@ class CQuadrantTree {
 		 第三个跳出点i所指向的牌不同，前两个跳出点i指向剩下的第一个无用的牌，而第三个跳出点i+1
 		 指向的才是第一个无用的牌，而且，if ( nBaseIndex != 2 )的else分支为i赋值跟第三个跳出
 		 点相同。
-		 memcpy( asSpareStone + cnScrapStone, asStone + i + 1, ( cnNormalStone + cnHun - i - 1 ) * sizeof( STONE ) );
+		 memcpy( asSpareStone + cnScrapStone, asStone + i + 1, ( cnNormalStone + cnHun - i - 1 ) * sizeof( Define.stoneObj ) );
 		 这条语句是相对于第三个跳出点的处理，所以出错
 	
 		 ASSERT( cnNormalStone > 0 && nBaseIndex >= 0 && nBaseIndex < 3 );
@@ -412,7 +411,7 @@ class CQuadrantTree {
 	
 		 // 终于分好了，剩下的牌应该是中间的几张
 		 memcpy( asSpareStone + cnScrapStone, asStone + i + 1,
-		 ( cnNormalStone + cnHun - i - 1 ) * sizeof( STONE ) );
+		 ( cnNormalStone + cnHun - i - 1 ) * sizeof( Define.stoneObj ) );
 		 // 剩下的普通牌数 = 原普通牌数 - 3 + 用掉的混数
 		 cnNormalStone = cnNormalStone -  3 + cnHun - cnScrapHun;
 		 cnHun = cnScrapHun;

@@ -1,4 +1,4 @@
-let Define = require('./commonDefine');
+let Define = require('../base/commonDefine');
 let CQuadrantTree = require('./QuadrantTree');
 const _ = require('lodash');
 let stoneObj = Define.stoneObj;

@@ -1,5 +1,5 @@
-let Define = require('./commonDefine');
-let FKMJConstData = require('./constData');
+let Define = require('../base/commonDefine');
+let FKMJConstData = require('../base/constData');
 /////////////////////
 const _ = require('lodash');
 let Judge = require('./judge');

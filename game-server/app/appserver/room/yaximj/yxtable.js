@@ -2,9 +2,11 @@ const pomelo = require('pomelo');
 const Promise = require('bluebird');
 const TIMER_ID = require('../../../util/common').TIMER_ID;
 const common = require('../../../util/common');
-const Define = require('./commonDefine');
-const constData = require('./constData');
+const Define = require('../base/commonDefine');
+const constData = require('../base/constData');
+const api = require('../base/api');
 let tagWeaveItem = require('./')
+const CJudgeDecorator = require('./JudgeDecorator');
 const FKMJ_START_COUNT = 4;
 let table = require('../table');
 class yxtable extends table {
@@ -97,7 +99,7 @@ class yxtable extends table {
     for (var i = 0; i < 4; i++) {
       this.m_WeaveItemArray[i] = [];
       for (var j = 0; j < 4; j++) {
-        this.m_WeaveItemArray[i][j] = new tagWeaveItem();
+        this.m_WeaveItemArray[i][j] = new api.tagWeaveItem();
       }
 
     }
@@ -105,9 +107,9 @@ class yxtable extends table {
     this.m_cbChiHuCard = 0;							//吃胡扑克
     this.m_ChiHuResult = [];				//吃胡结果
     for (var j = 0; j < 4; j++) {
-      this.m_ChiHuResult[j] = new tagChiHuResult();
+      this.m_ChiHuResult[j] = new api.tagChiHuResult();
     }
-    this.m_pJudgeDecorator = CJudgeDecorator.create(Define.RULE_PUBLIC);
+    this.m_pJudgeDecorator = new CJudgeDecorator(Define.RULE_PUBLIC);
     this.m_pJudgeDecorator.Init();
     /////////////////////////////////////
     return;
