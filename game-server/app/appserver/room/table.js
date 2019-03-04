@@ -25,6 +25,65 @@ class table {
     this.unreadyKickTime = {};
     this.mapUserInfo = {};
     this.clockTime = 0;
+
+    /////////////////////////////////////
+    //游戏变量
+    this.m_wSiceCount = [-1, -1];							    //骰子点数
+    this.m_wBankerUser = 0;							          //庄家用户
+    this.m_lGameScore = [];				                //游戏得分
+    this.m_cbCardIndex = [];	                    //用户扑克
+
+    this.m_cbHuaPaiCardData = [[], [], [], []];		//玩家拥有的花牌
+    this.m_cbHuaPaiCount = [0, 0, 0, 0];		      //玩家的花牌数
+    this.m_cbFinishBuHuaCount = 0;					      //完成补花的人数
+
+    //出牌信息
+    this.m_wOutCardUser = "";						          //出牌用户
+    this.m_cbOutCardData = 0;						          //出牌扑克
+    this.m_cbOutCardCount = 0;					          //出牌数目
+    this.m_cbDiscardCount = [];			              //丢弃数目
+    this.m_cbDiscardCard = [];		                //丢弃记录
+    //发牌信息
+
+    this.m_cbSendCardData = 0;						        //发牌扑克
+    this.m_cbSendCardCount = 0;						        //发牌数目
+    this.m_cbLeftCardCount = 0;						        //剩余数目
+
+    this.m_nMenWind = [0, 1, 2, 3];				        //门风。第一个人是庄家，东风是门风；第二个人本门风是南风；
+                                                  //第三个人(即庄家对面的人)本门风是西风；第四个人本门风是北风。
+                                                  //庄家变动时，门风也就相应随之变动。
+    this.m_nQuanWind = 0;							            //圈风
+    this.m_nCountInQuan = 0;							        //一圈里打的局数，
+
+    this.m_cbRepertoryCard = [];		              //库存扑克
+
+    //运行变量
+    this.m_cbProvideCard = 0;                     //供应扑克
+    this.m_wResumeUser = -1;                      //还原用户
+    this.m_wProvideUser = -1;                     //供应用户
+    //状态变量
+    this.m_bSendStatus = false;							      //发牌状态
+    this.m_bGangStatus = false;							      //抢杆状态
+    this.m_bEnjoinChiHu = [];			                //禁止吃胡
+    this.m_bEnjoinChiPeng = [];			              //禁止吃碰
+
+    //用户状态
+
+    this.m_bResponse = [];				                //响应标志
+    this.m_cbUserAction = [];			                //用户动作
+    this.m_cbOperateCard = [];			              //操作扑克
+    this.m_cbPerformAction = [];			            //执行动作
+    //组合扑克
+    this.m_cbWeaveItemCount = [];		              //组合数目
+    this.m_WeaveItemArray = [];                   //组合扑克
+    //结束信息
+    this.m_cbChiHuCard = 0;							          //吃胡扑克
+    this.m_ChiHuResult = [];				              //吃胡结果
+    this.m_tianhumark = true;                     //天胡标志
+    this.m_dihumark = true;
+    /////////////////////////////////////
+    this.m_pJudgeDecorator = null;					      //判断包装对象，用于进行吃、碰、杠、和的逻辑判断
+    this.m_Hun = 0;
   }
   /**
    * 玩家上座
@@ -297,5 +356,6 @@ class table {
   onGameStart() {
     
   }
+
 }
 module.exports = table;

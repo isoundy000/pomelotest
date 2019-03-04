@@ -325,8 +325,8 @@ Define.T_OK = 0;
 Define.F_NOENOUGHFANS = 1;  // 番数不足
 Define.F_NOTTING = 2;  // 没听
 
-Define.RULE_GB = 0;
-Define.RULE_PUBLIC = 1;
+Define.RULE_GB = 0;       // 国标
+Define.RULE_PUBLIC = 1;   // 大众
 
 
 Define.fans = [
