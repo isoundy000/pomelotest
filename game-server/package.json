@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": false,
   "dependencies": {
+    "ioredis": "^4.2.0",
     "mysql": "^2.16.0",
     "mysql2": "^1.6.4",
     "pomelo": "2.2.5",

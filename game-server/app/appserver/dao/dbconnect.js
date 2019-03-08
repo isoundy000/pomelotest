@@ -7,7 +7,7 @@ class dbconnect {
     this.record = null;
   }
   initConnect() {
-    this.sequelize = new Sequelize('pomelotest', 'root', null, {
+    this.sequelize = new Sequelize('pomelotest', 'root', 'root', {
       host: 'localhost',
       dialect: 'mysql',
       pool: {
@@ -24,7 +24,7 @@ class dbconnect {
         force: false
       }) // alter
       .then(() => {
-        // // 已创建数据表
+        // 已创建数据表
         // return this.user.create({
         //   nick: 'J1ohn5',
         //   mobile:null,
