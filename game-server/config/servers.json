@@ -1,44 +1,70 @@
 {
   "development": {
-    "gate": [{
-      "id": "gate-1",
-      "host": "127.0.0.1",
-      "clientPort": 3014,
-      "frontend": true
-    }],
-    "connector": [{
-      "id": "connector-1",
-      "host": "127.0.0.1",
-      "port": 3150,
-      "clientHost": "127.0.0.1",
-      "clientPort": 3010,
-      "frontend": true
-    }],
-    "hall": [{
-      "id": "hall-1",
-      "host": "127.0.0.1",
-      "port": 3200
-    }]
+    "gate": [
+      {
+        "id": "gate-1",
+        "host": "127.0.0.1",
+        "clientPort": 3014,
+        "frontend": true
+      }
+    ],
+    "connector": [
+      {
+        "id": "connector-1",
+        "host": "127.0.0.1",
+        "port": 3150,
+        "clientHost": "127.0.0.1",
+        "clientPort": 3010,
+        "frontend": true
+      }
+    ],
+    "hall": [
+      {
+        "id": "hall-1",
+        "host": "127.0.0.1",
+        "port": 3200
+      }
+    ],
+    "room": [
+      {
+        "id": "room-1",
+        "host": "127.0.0.1",
+        "port": 3300
+      }
+    ]
   },
   "production": {
-    "gate": [{
-      "id": "gate-1",
-      "host": "127.0.0.1",
-      "clientPort": 3014,
-      "frontend": true
-    }],
-    "connector": [{
-      "id": "connector-1",
-      "host": "127.0.0.1",
-      "port": 3150,
-      "clientHost": "127.0.0.1",
-      "clientPort": 3010,
-      "frontend": true
-    }],
-    "hall": [{
-      "id": "hall-1",
-      "host": "127.0.0.1",
-      "port": 3200
-    }]
+    "gate": [
+      {
+        "id": "gate-1",
+        "host": "127.0.0.1",
+        "clientPort": 3014,
+        "frontend": true
+      }
+    ],
+    "connector": [
+      {
+        "id": "connector-1",
+        "host": "127.0.0.1",
+        "port": 3150,
+        "clientHost": "127.0.0.1",
+        "clientPort": 3010,
+        "frontend": true
+      }
+    ],
+    "hall": [
+      {
+        "id": "hall-1",
+        "host": "127.0.0.1",
+        "port": 3200
+      }
+    ],
+    "room": [
+      {
+        "id": "room-1",
+        "host": "127.0.0.1",
+        "port": 3300
+      }
+    ]
   }
 }
