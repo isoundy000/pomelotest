@@ -1,12 +1,14 @@
 {
-  "name": "pomelotest",
-  "version": "0.0.1",
-  "private": false,
-  "dependencies": {
-    "ioredis": "^4.2.0",
-    "mysql": "^2.16.0",
-    "mysql2": "^1.6.4",
-    "pomelo": "2.2.5",
-    "sequelize": "^4.41.2"
-  }
+    "name": "pomeloserver",
+    "version": "0.0.1",
+    "private": false,
+    "dependencies": {
+        "bluebird": "^3.5.3",
+        "ioredis": "^4.6.2",
+        "loadash": "^1.0.0",
+        "mysql": "^2.16.0",
+        "mysql2": "^1.6.5",
+        "pomelo": "2.2.5",
+        "sequelize": "^4.43.0"
+    }
 }

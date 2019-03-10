@@ -1,6 +1,5 @@
 {
-  "appenders": [
-    {
+  "appenders": [{
       "type": "console"
     },
     {
@@ -35,14 +34,14 @@
       "category": "forward-log"
     },
     {
-     "type": "file",
-     "filename": "${opts:base}/logs/rpc-debug-${opts:serverId}.log",
-     "maxLogSize": 1048576,
-     "layout": {
-      "type": "basic"
-     },
-     "backups": 5,
-     "category": "rpc-debug"
+      "type": "file",
+      "filename": "${opts:base}/logs/rpc-debug-${opts:serverId}.log",
+      "maxLogSize": 1048576,
+      "layout": {
+        "type": "basic"
+      },
+      "backups": 5,
+      "category": "rpc-debug"
     },
     {
       "type": "file",
@@ -52,47 +51,47 @@
         "type": "basic"
       },
       "backups": 5,
-      "category":"crash-log"
+      "category": "crash-log"
     },
     {
       "type": "file",
       "filename": "${opts:base}/logs/admin.log",
       "maxLogSize": 1048576,
       "layout": {
-          "type": "basic"
-        }
-      ,"backups": 5,
-      "category":"admin-log"
+        "type": "basic"
+      },
+      "backups": 5,
+      "category": "admin-log"
     },
     {
       "type": "file",
       "filename": "${opts:base}/logs/pomelo-${opts:serverId}.log",
       "maxLogSize": 1048576,
       "layout": {
-          "type": "basic"
-        }
-      ,"backups": 5,
-      "category":"pomelo"
+        "type": "basic"
+      },
+      "backups": 5,
+      "category": "pomelo"
     },
     {
       "type": "file",
       "filename": "${opts:base}/logs/pomelo-admin.log",
       "maxLogSize": 1048576,
       "layout": {
-          "type": "basic"
-        }
-      ,"backups": 5,
-      "category":"pomelo-admin"
+        "type": "basic"
+      },
+      "backups": 5,
+      "category": "pomelo-admin"
     },
     {
       "type": "file",
       "filename": "${opts:base}/logs/pomelo-rpc-${opts:serverId}.log",
       "maxLogSize": 1048576,
       "layout": {
-          "type": "basic"
-        }
-      ,"backups": 5,
-      "category":"pomelo-rpc"
+        "type": "basic"
+      },
+      "backups": 5,
+      "category": "pomelo-rpc"
     },
     {
       "type": "file",
@@ -127,8 +126,19 @@
   ],
 
   "levels": {
-    "rpc-log" : "ERROR",
-    "forward-log": "ERROR"
+    "rpc-log": "ALL",
+    "forward-log": "ALL",
+    "con-log": "ALL",
+    "forward-log": "ALL",
+    "rpc-debug": "ALL",
+    "crash-log": "ALL",
+    "admin-log": "ALL",
+    "pomelo": "ALL",
+    "pomelo-admin": "ALL",
+    "pomelo-rpc": "ALL",
+    "redis": "ALL",
+    "connect": "ALL",
+    "common": "ALL"
   },
 
   "replaceConsole": true,

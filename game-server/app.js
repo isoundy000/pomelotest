@@ -43,7 +43,7 @@ app.configure('production|development', 'hall', function () {
   app.service = require('./app/appserver/hall/hallServices');
 });
 app.configure('production|development', 'room', function () {
-  app.service = require('./app/appserver/hall/roomServices');
+  app.service = require('./app/appserver/room/roomServices');
   app.service.initRoom();
 });
 // start app
