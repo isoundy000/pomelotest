@@ -6,5 +6,11 @@
       "userState": 1,
       "configRedis": 2
     }
+  },
+  "mysql": {
+    "host": "127.0.0.1",
+    "database": "pomelotest",
+    "password": "root",
+    "user": "root"
   }
 }

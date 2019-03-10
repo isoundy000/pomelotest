@@ -1,6 +1,7 @@
 var Sequelize = require('sequelize');
 let userdb = require('./dbconfig/user');
 let roomdb = require('./dbconfig/room');
+const mysqlconf = require("../../../config/configuration").mysql;
 class dbconnect {
   constructor() {
     this.sequelize = null; // 数据库连接池
@@ -9,8 +10,8 @@ class dbconnect {
     this.room = null; // 房间表
   }
   initConnect() {
-    this.sequelize = new Sequelize('pomelotest', 'root', 'root', {
-      host: 'localhost',
+    this.sequelize = new Sequelize(mysqlconf.database, mysqlconf.user, mysqlconf.password, {
+      host: mysqlconf.host,
       dialect: 'mysql',
       pool: {
         max: 5,
