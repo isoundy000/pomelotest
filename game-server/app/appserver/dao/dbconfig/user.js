@@ -1,10 +1,14 @@
 module.exports = function (sequelize, Sequelize) {
   return sequelize.define('user', {
-    uid: {
-      type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
     },
-    userid: {
-      type: Sequelize.INTEGER, unique: true
+    uid: {
+      type: Sequelize.UUID,
+      defaultValue: Sequelize.UUIDV1,
+      unique: true
     },
     nick: {
       type: Sequelize.STRING,
@@ -71,6 +75,6 @@ module.exports = function (sequelize, Sequelize) {
       allowNull: true
     },
   }, {
-      freezeTableName: true // Model 对应的表名将与model名相同
-    });
+    freezeTableName: true // Model 对应的表名将与model名相同
+  });
 }

@@ -1,7 +1,9 @@
 module.exports = function (sequelize, Sequelize) {
   return sequelize.define('room', {
     id: {
-      type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
     },
     name: {
       type: Sequelize.STRING,
@@ -14,9 +16,8 @@ module.exports = function (sequelize, Sequelize) {
       defaultValue: ''
     },
     info: {
-      type: Sequelize.STRING,
-      allowNull: true,
-      defaultValue: ''
+      type: Sequelize.JSON,
+      allowNull: true
     },
     serverId: {
       type: Sequelize.STRING,
@@ -33,6 +34,6 @@ module.exports = function (sequelize, Sequelize) {
       defaultValue: 0
     }
   }, {
-      freezeTableName: true // Model 对应的表名将与model名相同
-    });
+    freezeTableName: true // Model 对应的表名将与model名相同
+  });
 }

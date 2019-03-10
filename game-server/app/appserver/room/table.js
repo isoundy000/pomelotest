@@ -4,11 +4,10 @@ const TIMER_ID = require('../../util/common').TIMER_ID;
 const common = require('../../util/common');
 const api = require('./base/api').MJApi;
 class table {
-  constructor() {
-  }
+  constructor() {}
   init(tableIdx, roomInfo) {
     this.tableIdx = tableIdx;
-    let info = JSON.parse(roomInfo.info);
+    let info = roomInfo.info;
     this.outTime = info.outTime || 30;
     this.buhuaTime = info.buhuaTime || 5;
     this.readyTime = info.readyTime || 30;
@@ -22,7 +21,7 @@ class table {
     this.timerNameOffline = `timerNameOffline${this.roomId}_${tableIdx}_${pomelo.app.serverId}`;
     this.timerNameEndToContinue = `timerNameEndToContinue${this.roomId}_${tableIdx}_${pomelo.app.serverId}`;
     this.timerDelayCleanEnd = `timerDelayCleanEnd${this.roomId}_${tableIdx}_${pomelo.app.serverId}`;
-    this.timerNameBuHua = `timerNameBuHua${this.roomId}_${tableIdx}_${pomelo.app.serverId}`; 
+    this.timerNameBuHua = `timerNameBuHua${this.roomId}_${tableIdx}_${pomelo.app.serverId}`;
     let nowtime = new Date().getTime();
     this.channel = pomelo.app.get('channelService').getChannel(`room_${this.roomId}_table_${this.tableIdx}_${nowtime}`, true);
     this.unreadyKickTime = {};
@@ -33,61 +32,66 @@ class table {
     this.curChair = -1;
     /////////////////////////////////////
     //游戏变量
-    this.m_wSiceCount = [-1, -1];							    //骰子点数
-    this.m_wBankerUser = 0;							          //庄家用户
-    this.m_lGameScore = [];				                //游戏得分
-    this.m_cbCardIndex = [];	                    //用户扑克
+    this.m_wSiceCount = [-1, -1]; //骰子点数
+    this.m_wBankerUser = 0; //庄家用户
+    this.m_lGameScore = []; //游戏得分
+    this.m_cbCardIndex = []; //用户扑克
 
-    this.m_cbHuaPaiCardData = [[], [], [], []];		//玩家拥有的花牌
-    this.m_cbHuaPaiCount = [0, 0, 0, 0];		      //玩家的花牌数
-    this.m_cbFinishBuHuaCount = 0;					      //完成补花的人数
+    this.m_cbHuaPaiCardData = [
+      [],
+      [],
+      [],
+      []
+    ]; //玩家拥有的花牌
+    this.m_cbHuaPaiCount = [0, 0, 0, 0]; //玩家的花牌数
+    this.m_cbFinishBuHuaCount = 0; //完成补花的人数
 
     //出牌信息
-    this.m_wOutCardUser = "";						          //出牌用户
-    this.m_cbOutCardData = 0;						          //出牌扑克
-    this.m_cbOutCardCount = 0;					          //出牌数目
-    this.m_cbDiscardCount = [];			              //丢弃数目
-    this.m_cbDiscardCard = [];		                //丢弃记录
+    this.m_wOutCardUser = ""; //出牌用户
+    this.m_cbOutCardData = 0; //出牌扑克
+    this.m_cbOutCardCount = 0; //出牌数目
+    this.m_cbDiscardCount = []; //丢弃数目
+    this.m_cbDiscardCard = []; //丢弃记录
     //发牌信息
 
-    this.m_cbSendCardData = 0;						        //发牌扑克
-    this.m_cbSendCardCount = 0;						        //发牌数目
-    this.m_cbLeftCardCount = 0;						        //剩余数目
+    this.m_cbSendCardData = 0; //发牌扑克
+    this.m_cbSendCardCount = 0; //发牌数目
+    this.m_cbLeftCardCount = 0; //剩余数目
 
-    this.m_nMenWind = [0, 1, 2, 3];				        //门风。第一个人是庄家，东风是门风；第二个人本门风是南风；
-                                                  //第三个人(即庄家对面的人)本门风是西风；第四个人本门风是北风。
-                                                  //庄家变动时，门风也就相应随之变动。
-    this.m_nQuanWind = 0;							            //圈风
-    this.m_nCountInQuan = 0;							        //一圈里打的局数，
+    this.m_nMenWind = [0, 1, 2, 3]; //门风。第一个人是庄家，东风是门风；第二个人本门风是南风；
+    //第三个人(即庄家对面的人)本门风是西风；第四个人本门风是北风。
+    //庄家变动时，门风也就相应随之变动。
+    this.m_nQuanWind = 0; //圈风
+    this.m_nCountInQuan = 0; //一圈里打的局数，
 
-    this.m_cbRepertoryCard = [];		              //库存扑克
+    this.m_cbRepertoryCard = []; //库存扑克
 
     //运行变量
-    this.m_cbProvideCard = 0;                     //供应扑克
-    this.m_wResumeUser = -1;                      //还原用户
-    this.m_wProvideUser = -1;                     //供应用户
+    this.m_cbProvideCard = 0; //供应扑克
+    this.m_wResumeUser = -1; //还原用户
+    this.m_wProvideUser = -1; //供应用户
     //状态变量
-    this.m_bSendStatus = false;							      //发牌状态
-    this.m_bGangStatus = false;							      //抢杆状态
-    this.m_bEnjoinChiHu = [];			                //禁止吃胡
-    this.m_bEnjoinChiPeng = [];			              //禁止吃碰
+    this.m_bSendStatus = false; //发牌状态
+    this.m_bGangStatus = false; //抢杆状态
+    this.m_bEnjoinChiHu = []; //禁止吃胡
+    this.m_bEnjoinChiPeng = []; //禁止吃碰
 
     //用户状态
 
-    this.m_bResponse = [];				                //响应标志
-    this.m_cbUserAction = [];			                //用户动作
-    this.m_cbOperateCard = [];			              //操作扑克
-    this.m_cbPerformAction = [];			            //执行动作
+    this.m_bResponse = []; //响应标志
+    this.m_cbUserAction = []; //用户动作
+    this.m_cbOperateCard = []; //操作扑克
+    this.m_cbPerformAction = []; //执行动作
     //组合扑克
-    this.m_cbWeaveItemCount = [];		              //组合数目
-    this.m_WeaveItemArray = [];                   //组合扑克
+    this.m_cbWeaveItemCount = []; //组合数目
+    this.m_WeaveItemArray = []; //组合扑克
     //结束信息
-    this.m_cbChiHuCard = 0;							          //吃胡扑克
-    this.m_ChiHuResult = [];				              //吃胡结果
-    this.m_tianhumark = true;                     //天胡标志
+    this.m_cbChiHuCard = 0; //吃胡扑克
+    this.m_ChiHuResult = []; //吃胡结果
+    this.m_tianhumark = true; //天胡标志
     this.m_dihumark = true;
     /////////////////////////////////////
-    this.m_pJudgeDecorator = null;					      //判断包装对象，用于进行吃、碰、杠、和的逻辑判断
+    this.m_pJudgeDecorator = null; //判断包装对象，用于进行吃、碰、杠、和的逻辑判断
     this.m_Hun = 0;
   }
   /**
@@ -97,10 +101,16 @@ class table {
    */
   enterTable(chair, user) {
     if (this.getUserCount() >= 4 || this.getUserByChair(chair)) {
-      return Promise.reject(new Error({ code: -500, msg: '座位上已有人了' }));
+      return Promise.reject(new Error({
+        code: -500,
+        msg: '座位上已有人了'
+      }));
     }
     if (user.bean < this.enterLimit) {
-      return Promise.reject(new Error({ code: -500, msg: `本桌准入标准是${this.enterLimit}钻石,请先去商城兑换` }));
+      return Promise.reject(new Error({
+        code: -500,
+        msg: `本桌准入标准是${this.enterLimit}钻石,请先去商城兑换`
+      }));
     }
     user.chair = chair;
     this.mapUserInfo[user.uid] = user;
@@ -116,8 +126,16 @@ class table {
    */
   tellOthersSomeOneIn(user) {
     let userInfo = user.getPlayInfo();
-    this.channel.pushMessage('onPlayerIn', { userInfo }); // 给桌上的玩家推送玩家上座消息
-    let baseInfo = { tableIdx: this.tableIdx, chair: user.chair, role: user.role, role: user.nick, roomId: this.roomId };
+    this.channel.pushMessage('onPlayerIn', {
+      userInfo
+    }); // 给桌上的玩家推送玩家上座消息
+    let baseInfo = {
+      tableIdx: this.tableIdx,
+      chair: user.chair,
+      role: user.role,
+      role: user.nick,
+      roomId: this.roomId
+    };
     pomelo.app.service.tellOthersSomeOneToTalbe(this.roomId, baseInfo);
   }
 
@@ -126,8 +144,15 @@ class table {
    * @param {*} user 
    */
   tellOthersSomeOneOut(uid) {
-    this.channel.pushMessage('onPlayerOut', { uid, roomId: this.roomId }); // 给桌上的玩家推送玩家离开消息
-    let baseInfo = { tableIdx: this.tableIdx, uid, roomId: this.roomId };
+    this.channel.pushMessage('onPlayerOut', {
+      uid,
+      roomId: this.roomId
+    }); // 给桌上的玩家推送玩家离开消息
+    let baseInfo = {
+      tableIdx: this.tableIdx,
+      uid,
+      roomId: this.roomId
+    };
     pomelo.app.service.tellOthersSomeOneLeaveTalbe(this.roomId, baseInfo);
   }
 
@@ -218,17 +243,16 @@ class table {
   }
 
   /**
-  * 启动定时器
-  * @param {Number} timerId	定时器ID
-  * @param {Number} uid 用户ID
-  */
+   * 启动定时器
+   * @param {Number} timerId	定时器ID
+   * @param {Number} uid 用户ID
+   */
   startTimer(timerId, uid = 0) {
     let self = this;
     switch (timerId) {
       case TIMER_ID.ID_OUT_CARD: // 出牌定时器
         this.clockTime = new Date().getTime() + this.outTime * 1000;
-        common.setGameTimeout(this.timerNameOutCard, (this.outTime + 1) * 1000, () => {
-        });
+        common.setGameTimeout(this.timerNameOutCard, (this.outTime + 1) * 1000, () => {});
         break;
       case TIMER_ID.ID_BUHUA: // 补花定时器
         this.clockTime = new Date().getTime() + this.buhuaTime * 1000;
@@ -246,8 +270,7 @@ class table {
         });
         break;
       case TIMER_ID.ID_TRUSTEE: // 托管延时操作定时器
-        common.setGameTimeout(this.timerNameTrustee, 1000, () => {
-        });
+        common.setGameTimeout(this.timerNameTrustee, 1000, () => {});
         break;
       case TIMER_ID.ID_READY: // 准备倒计时
         let tmpTimerName = this.timerNameReady + uid;
@@ -271,12 +294,10 @@ class table {
         });
         break;
       case TIMER_ID.END_TO_CONTINUE: // 一局结束到下一句开始
-        common.setGameTimeout(this.timerNameEndToContinue, 35 * 1000, () => {
-        });
+        common.setGameTimeout(this.timerNameEndToContinue, 35 * 1000, () => {});
         break;
       case TIMER_ID.DELAY_TO_CLEANEND: // 一局结束延时清理结算
-        common.setGameTimeout(this.timerDelayCleanEnd, 100, () => {
-        });
+        common.setGameTimeout(this.timerDelayCleanEnd, 100, () => {});
         break;
     }
   };
@@ -358,14 +379,22 @@ class table {
     this.closeTimer(TIMER_ID.ID_READY, uid);
     let user = this.mapUserInfo[uid];
     if (user.isReady()) {
-      return cb({ code: 200 });
+      return cb({
+        code: 200
+      });
     }
     if (user.isPlaying()) {
-      return cb({ code: 500 });
+      return cb({
+        code: 500
+      });
     }
     user.setReady();
-    this.channel.pushMessage('onReady', { uid }); // 给桌上的玩家推送玩家准备消息
-    cb({ code: 200 });
+    this.channel.pushMessage('onReady', {
+      uid
+    }); // 给桌上的玩家推送玩家准备消息
+    cb({
+      code: 200
+    });
     this.checkStart();
   }
 
@@ -377,9 +406,9 @@ class table {
       this.onGameStart();
     }
   }
-  
+
   onGameStart() {
-    
+
   }
   //手牌中有花
   havehua(uid) {
@@ -398,7 +427,7 @@ class table {
    */
   BuHua(uid) {
     //保存花牌，将花牌从手中移除，从牌堆中摸相应数量的牌
-    let count = 0;	//花牌数量（等于玩家需要的正常牌数量）
+    let count = 0; //花牌数量（等于玩家需要的正常牌数量）
     let user = this.mapUserInfo[uid];
     let chair = user.chair;
     let len = user.vrHandCard.length;
@@ -418,13 +447,13 @@ class table {
         }
       }
     }
-    
+
     //从牌堆中再摸牌
     if (count > 0) {
       let cardlist = [];
-      let cardCount = 0;		//已经摸到的正常牌数量
+      let cardCount = 0; //已经摸到的正常牌数量
       for (let i = 0; i < count; i++) {
-        if (this.m_cbRepertoryCard.length <= 0) return 0;	//如果牌不够了，返回0，表示没有摸到正常牌
+        if (this.m_cbRepertoryCard.length <= 0) return 0; //如果牌不够了，返回0，表示没有摸到正常牌
         let cbCardData = this.m_cbRepertoryCard[0];
         cardlist.push(cbCardData);
         this.m_cbRepertoryCard.splice(0, 1);
@@ -478,7 +507,7 @@ class table {
     if (this.m_cbRepertoryCard.length <= 0) {
       this.m_cbChiHuCard = 0;
       this.m_wProvideUser = -1;
-      this.onGameEnd(this.m_wProvideUser, "", 1);///////////////////////////////////////////////
+      this.onGameEnd(this.m_wProvideUser, "", 1); ///////////////////////////////////////////////
       return true;
     }
     let user = this.mapUserInfo[uid];
@@ -552,8 +581,7 @@ class table {
             GangCardResult.cbCardData[GangCardResult.cbCardCount] = this.m_pJudgeDecorator.SwitchstoneToCardData(mahGroup[i].asStone[0]);
             ++GangCardResult.cbCardCount;
             this.m_cbUserAction[this.curChair] |= FKMJConstData.WIK_GANG;
-          }
-          else if (mahGroup[i].nGroupStyle == Define.GROUP_STYLE_MINGGANG) {
+          } else if (mahGroup[i].nGroupStyle == Define.GROUP_STYLE_MINGGANG) {
             this.m_bGangStatus = true;
             GangCardResult.cbCardData[GangCardResult.cbCardCount] = this.m_pJudgeDecorator.SwitchstoneToCardData(mahGroup[i].asStone[0]);
             ++GangCardResult.cbCardCount;
@@ -616,8 +644,7 @@ class table {
     let userInfo = this.getChairUser(this.curChair);
     if (userInfo.isServerTrust()) {
       this.zidongchupai();
-    }
-    else {
+    } else {
       this.setOutCardTime(true);
     }
     return true;

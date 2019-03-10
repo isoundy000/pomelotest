@@ -1,1 +1,3 @@
 userState: {uid,sid,gameType,gameServerId,status,device,online,roomId}
+
+{"baseBean":100,"outTime":30,"readyTime":30,"enterLimit":1000,"fee":100}
