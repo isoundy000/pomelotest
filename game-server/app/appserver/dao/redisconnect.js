@@ -1,13 +1,13 @@
 const IORedis = require("ioredis");
 const gameConfig = require("../../../config/configuration");
 const logger = require('pomelo-logger').getLogger('redis');
-Redis = function () { };
+Redis = function () {};
 module.exports = Redis;
-let app = null;
+let app = require('pomelo').app;
 
 Redis.initAll = function (pomeloApp) {
   let redisDB = gameConfig.redis.db;
-  app = pomeloApp;
+  //app = pomeloApp;
 
   for (let key in redisDB) {
     Redis.init(key, redisDB[key], gameConfig.redis);
@@ -31,7 +31,7 @@ Redis.init = function (key, db, redisConfig) {
   });
 
   currentRedis.on("connect", async function () {
-    if ((db != redisConfig.db.userRedis) && app.serverId == 'hall-1') { //在配置redis片中初始化信息
+    if (app.serverId == 'hall-1') { //在配置redis片中初始化信息
       await currentRedis.flushdb();
     }
   });
@@ -45,16 +45,27 @@ Redis.init = function (key, db, redisConfig) {
         return Promise.resolve(res);
       })
       .catch((error) => {
-        logger.error('currentRedis.getObj 出错', { error, uid });
-        return Promise.reject({ code: -500,msg: "查询redis数据库出错"});// redis获取数据失败
+        logger.error('currentRedis.getObj 出错', {
+          error,
+          uid
+        });
+        return Promise.reject({
+          code: -500,
+          msg: "查询redis数据库出错"
+        }); // redis获取数据失败
       })
   };
   currentRedis.setObj = function (obj) {
     return currentRedis.hmset(obj.uid, obj)
       .catch((error) => {
-        logger.error('currentRedis.saveOrUpdateObj 出错', { error, obj });
-        return Promise.reject({ code: -500, msg: "redis 存储数据失败" });// redis数据库更新失败
+        logger.error('currentRedis.saveOrUpdateObj 出错', {
+          error,
+          obj
+        });
+        return Promise.reject({
+          code: -500,
+          msg: "redis 存储数据失败"
+        }); // redis数据库更新失败
       })
   };
 }
-

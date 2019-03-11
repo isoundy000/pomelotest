@@ -3,7 +3,7 @@
     "url": "127.0.0.1",
     "password": "redis1312",
     "db": {
-      "userState": 1,
+      "userStatus": 1,
       "configRedis": 2
     }
   },

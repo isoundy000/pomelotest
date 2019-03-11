@@ -2,7 +2,7 @@ const Promise = require('bluebird');
 const pomelo = require('pomelo');
 let baseUser = require('../../../appserver/base/baseUser');
 const logger = require('pomelo-logger').getLogger('connect');
-
+const common = require('../../../util/common');
 module.exports = function (app) {
 	return new Handler(app);
 };
@@ -10,6 +10,7 @@ module.exports = function (app) {
 var Handler = function (app) {
 	this.app = app;
 	this.sessionService = app.get('sessionService');
+	this.loginmap = {};
 };
 
 /**
@@ -66,7 +67,7 @@ Handler.prototype.subscribe = function (msg, session, next) {
 };
 
 /**
- * 登录
+ * 登录{mobile,password,device}
  */
 Handler.prototype.login = function (msg, session, next) {
 	if (!this.app.startOver) {
@@ -82,7 +83,20 @@ Handler.prototype.login = function (msg, session, next) {
 		});
 	}
 	let user = null;
-	return pomelo.app.db.findOne({
+	if (this.loginmap[msg.mobile]) {
+		return next(null, {
+			code: -500,
+			msg: "稍事休息！"
+		});
+	}
+	this.loginmap[msg.mobile] = true;
+	let self = this;
+	setTimeout(function () {
+		if (self.loginmap[msg.mobile]) {
+			delete self.loginmap[msg.mobile];
+		}
+	}, 500);
+	return pomelo.app.db.user.findOne({
 			where: {
 				mobile: msg.mobile
 			}
@@ -97,11 +111,12 @@ Handler.prototype.login = function (msg, session, next) {
 			if (result.password != msg.password) {
 				return Promise.reject({
 					code: -500,
-					msg: "登录密码不正确"
+					msg: "请输入正确的密码"
 				});
 			}
 			user = result;
-			return pomelo.app.redis.userStatus.getObj(user.uid);
+			console.log('----------', pomelo.app.redis)
+			return pomelo.app.userStatus.getObj(user.uid);
 		})
 		.then((userStatus) => {
 			if (userStatus) {
@@ -203,7 +218,7 @@ Handler.prototype.dataRecovery = function (msg, user, userStatus, session, next)
 			device: msg.device
 		})
 		.then(() => {
-			if (userStatus.iskick && userStatus.iskick == 1) {
+			if (userStatus && userStatus.iskick && userStatus.iskick == 1) {
 				return Promise.delay(100);
 			}
 			return Promise.resolve();
@@ -234,7 +249,7 @@ Handler.prototype.dataRecovery = function (msg, user, userStatus, session, next)
 					roomId: null
 				};
 			}
-			return pomelo.app.redis.userStatus.setObj(userStatus);
+			return pomelo.app.userStatus.setObj(userStatus);
 		})
 		.then(() => {
 			let userInfo = new baseUser();
@@ -267,7 +282,7 @@ var onUserLeave = function (app, session, reason) {
 	let uid = session.uid;
 	let sid = session.get('sid');
 	logger.info(`${session.uid} 用户离开，sid: ${pomelo.app.serverId} reason: ${JSON.stringify(reason)}`);
-	pomelo.app.redis.userStatus.getObj(uid)
+	pomelo.app.userStatus.getObj(uid)
 		.then((userState) => {
 			let iskick = 0;
 			if (userState && userState.gameType && userState.gameServerId) {
@@ -277,16 +292,16 @@ var onUserLeave = function (app, session, reason) {
 						uid,
 						iskick: null
 					};
-					pomelo.app.redis.userStatus.setObj(userStatus);
+					pomelo.app.userStatus.setObj(userStatus);
 				});
 			}
 			let userStatus = {
 				uid,
 				iskick
 			};
-			pomelo.app.redis.userStatus.setObj(userStatus);
+			pomelo.app.userStatus.setObj(userStatus);
 		});
-	pomelo.app.db.update({
+	pomelo.app.db.user.update({
 		isOnline: false
 	}, {
 		where: {
