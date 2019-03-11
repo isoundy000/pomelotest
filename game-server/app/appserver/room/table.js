@@ -502,7 +502,7 @@ class table {
    * @param {*} uid 
    * @param {*} b 
    */
-  DispatchCardData(uid, b = false) {
+  DispatchCardData(curChair, b = false) {
     //荒庄结束
     if (this.m_cbRepertoryCard.length <= 0) {
       this.m_cbChiHuCard = 0;
@@ -510,118 +510,94 @@ class table {
       this.onGameEnd(this.m_wProvideUser, "", 1); ///////////////////////////////////////////////
       return true;
     }
-    let user = this.mapUserInfo[uid];
-    let curchair = user.chair;
+    let user = this.getUserByChair(curChair);
     //设置变量
     this.m_cbOutCardData = 0;
     this.curChair = curchair;
     this.m_wOutCardUser = -1;
     this.m_bEnjoinChiHu[curchair] = false;
+
     //发牌处理
-    if (this.m_bSendStatus == true) {
-      //发送扑克
-      this.m_cbSendCardCount++;
-      this.m_cbSendCardData = this.m_cbRepertoryCard[0];
-      this.m_cbRepertoryCard.splice(0, 1);
-      user.vrHandCard.push(this.m_cbSendCardData);
-      if (this.api.IsHua(this.m_cbSendCardData)) {
-        /////
-        let buhua = {
-          uid: user.uid,
-          huacount: 0,
-          buhuacardlist: [this.m_cbSendCardData],
-          HuaPaiCardData: this.m_cbHuaPaiCardData[curchair],
-          HuaPaiCount: 0
+    //发送扑克
+    this.m_cbSendCardCount++;
+    this.m_cbSendCardData = this.m_cbRepertoryCard[0];
+    this.m_cbRepertoryCard.splice(0, 1);
+    user.vrHandCard.push(this.m_cbSendCardData);
+    if (this.api.IsHua(this.m_cbSendCardData)) {
+      return this.BuHua(user.uid);
+    }
+
+    //设置变量
+    this.m_wProvideUser = curchair;
+    this.m_cbProvideCard = this.m_cbSendCardData;
+
+    //杠牌判断
+    // 杠牌和自摸不管什么时候都要检测
+    //if ((!this.m_bEnjoinChiPeng[curchair])&&(this.m_cbRepertoryCard.length>1))
+    //{
+    //    let GangCardResult=new tagGangCardResult();
+    //    this.m_cbUserAction[curchair]|=this.api.AnalyseGangCard(this.SwitchToCardIndex(this.m_cbCardIndex[curchair]),
+    //        this.m_WeaveItemArray[curchair],this.m_cbWeaveItemCount[curchair],GangCardResult);
+    //}
+
+    let nCheckMask = 0;
+    nCheckMask |= Define.REQUEST_TYPE_GANG;
+    let mahGroup = [];
+    for (let l = 0; l < 5; l++) {
+
+      mahGroup[l] = Judge.createSTONEGROUP();
+    }
+    let gangCount = this.m_pJudgeDecorator.CheckShowTile(this.SwitchToCardIndex(this.m_cbCardIndex[this.curChair]), Define.INVALID_CARD_INDEX, this.m_WeaveItemArray[this.curChair], this.m_cbWeaveItemCount[this.curChair],
+      this.m_cbHuaPaiCardData[this.curChair], this.m_cbHuaPaiCount[this.curChair], nCheckMask, true, this.m_nMenWind[this.curChair], mahGroup);
+
+    //将杠牌结果保存到原生的数据结构中
+    if (gangCount > 0) {
+      let GangCardResult = new tagGangCardResult();
+      for (let i = 0; i < gangCount; ++i) {
+        if (mahGroup[i].nGroupStyle == Define.GROUP_STYLE_ANGANG) {
+          GangCardResult.cbCardData[GangCardResult.cbCardCount] = this.m_pJudgeDecorator.SwitchstoneToCardData(mahGroup[i].asStone[0]);
+          ++GangCardResult.cbCardCount;
+          this.m_cbUserAction[this.curChair] |= FKMJConstData.WIK_GANG;
         }
-        //将补花数据发给玩家
-        let param = {
-          route: "on_BUHUA",
-          msg: buhua
-        };
+        else if (mahGroup[i].nGroupStyle == Define.GROUP_STYLE_MINGGANG) {
+          this.m_bGangStatus = true;
+          GangCardResult.cbCardData[GangCardResult.cbCardCount] = this.m_pJudgeDecorator.SwitchstoneToCardData(mahGroup[i].asStone[0]);
+          ++GangCardResult.cbCardCount;
+          this.m_cbUserAction[this.curChair] |= FKMJConstData.WIK_GANG;
 
-        let uids = [];
-        this.getNotUidToUserAndLookUIDAll("", uids);
-        common.sendTo(param, uids);
-        ///
-        this.setBuHuaTime(false, 1, curchair, true);
-        this.setBuHuaTime(true, 1, curchair, true);
-        //this.BuHua(curchair,true);
-        this.m_cbSendCardCount--;
-        return true;
-      }
-
-      //设置变量
-      this.m_wProvideUser = curchair;
-      this.m_cbProvideCard = this.m_cbSendCardData;
-
-      //杠牌判断
-      // 杠牌和自摸不管什么时候都要检测
-      //if ((!this.m_bEnjoinChiPeng[curchair])&&(this.m_cbRepertoryCard.length>1))
-      //{
-      //    let GangCardResult=new tagGangCardResult();
-      //    this.m_cbUserAction[curchair]|=this.api.AnalyseGangCard(this.SwitchToCardIndex(this.m_cbCardIndex[curchair]),
-      //        this.m_WeaveItemArray[curchair],this.m_cbWeaveItemCount[curchair],GangCardResult);
-      //}
-
-      let nCheckMask = 0;
-      nCheckMask |= Define.REQUEST_TYPE_GANG;
-      let mahGroup = [];
-      for (let l = 0; l < 5; l++) {
-
-        mahGroup[l] = Judge.createSTONEGROUP();
-      }
-      let gangCount = this.m_pJudgeDecorator.CheckShowTile(this.SwitchToCardIndex(this.m_cbCardIndex[this.curChair]), Define.INVALID_CARD_INDEX, this.m_WeaveItemArray[this.curChair], this.m_cbWeaveItemCount[this.curChair],
-        this.m_cbHuaPaiCardData[this.curChair], this.m_cbHuaPaiCount[this.curChair], nCheckMask, true, this.m_nMenWind[this.curChair], mahGroup);
-
-      //将杠牌结果保存到原生的数据结构中
-      if (gangCount > 0) {
-        let GangCardResult = new tagGangCardResult();
-        for (let i = 0; i < gangCount; ++i) {
-          if (mahGroup[i].nGroupStyle == Define.GROUP_STYLE_ANGANG) {
-            GangCardResult.cbCardData[GangCardResult.cbCardCount] = this.m_pJudgeDecorator.SwitchstoneToCardData(mahGroup[i].asStone[0]);
-            ++GangCardResult.cbCardCount;
-            this.m_cbUserAction[this.curChair] |= FKMJConstData.WIK_GANG;
-          } else if (mahGroup[i].nGroupStyle == Define.GROUP_STYLE_MINGGANG) {
-            this.m_bGangStatus = true;
-            GangCardResult.cbCardData[GangCardResult.cbCardCount] = this.m_pJudgeDecorator.SwitchstoneToCardData(mahGroup[i].asStone[0]);
-            ++GangCardResult.cbCardCount;
-            this.m_cbUserAction[this.curChair] |= FKMJConstData.WIK_GANG;
-
-          }
         }
       }
-      //
+    }
+    //
 
 
-      //牌型权位
-      let dwChiHuRight = 0;
-      if (this.m_bGangStatus) dwChiHuRight |= FKMJConstData.CHR_QIANG_GANG;
-      ////
-      //胡牌判断
-      let ChiHuResult = new tagChiHuResult();
-      let winmode = 0;
-      if (this.m_cbSendCardCount <= 1 && this.m_tianhumark) {
-        winmode |= Define.WIN_MODE_TIANHU;
-      }
-      if ((this.m_wBankerUser + this.m_cbSendCardCount - 1) % 4 == curchair && this.m_cbSendCardCount <= 4 && this.m_dihumark && this.m_wBankerUser != curchair) {
-        winmode |= Define.FAN_DIHU;
-      }
+    //牌型权位
+    let dwChiHuRight = 0;
+    if (this.m_bGangStatus) dwChiHuRight |= FKMJConstData.CHR_QIANG_GANG;
+    ////
+    //胡牌判断
+    let ChiHuResult = new tagChiHuResult();
+    let winmode = 0;
+    if (this.m_cbSendCardCount <= 1 && this.m_tianhumark) {
+      winmode |= Define.WIN_MODE_TIANHU;
+    }
+    if ((this.m_wBankerUser + this.m_cbSendCardCount - 1) % 4 == curchair && this.m_cbSendCardCount <= 4 && this.m_dihumark && this.m_wBankerUser != curchair) {
+      winmode |= Define.FAN_DIHU;
+    }
 
-      winmode |= Define.WIN_MODE_ZIMO;
-      if (this.m_cbRepertoryCard.length == 0) {
-        winmode |= Define.WIN_MODE_HAIDI;
-      }
-      //let checkResult=0;
-      let checkResult = this.m_pJudgeDecorator.CheckWin(this.SwitchToCardIndex(this.m_cbCardIndex[this.curChair]), this.api.SwitchToCardIndex(this.m_cbSendCardData), this.m_WeaveItemArray[this.curChair], this.m_cbWeaveItemCount[this.curChair],
-        this.m_cbHuaPaiCardData[this.curChair], this.m_cbHuaPaiCount[this.curChair], winmode, this.m_nMenWind[this.curChair], ChiHuResult);
-      if (checkResult == Define.F_NOENOUGHFANS || checkResult == Define.T_OK) this.m_cbUserAction[this.curChair] |= FKMJConstData.WIK_CHI_HU;
+    winmode |= Define.WIN_MODE_ZIMO;
+    if (this.m_cbRepertoryCard.length == 0) {
+      winmode |= Define.WIN_MODE_HAIDI;
+    }
+    //let checkResult=0;
+    let checkResult = this.m_pJudgeDecorator.CheckWin(this.SwitchToCardIndex(this.m_cbCardIndex[this.curChair]), this.api.SwitchToCardIndex(this.m_cbSendCardData), this.m_WeaveItemArray[this.curChair], this.m_cbWeaveItemCount[this.curChair],
+      this.m_cbHuaPaiCardData[this.curChair], this.m_cbHuaPaiCount[this.curChair], winmode, this.m_nMenWind[this.curChair], ChiHuResult);
+    if (checkResult == Define.F_NOENOUGHFANS || checkResult == Define.T_OK) this.m_cbUserAction[this.curChair] |= FKMJConstData.WIK_CHI_HU;
 
       //let ChiHuResult= new tagChiHuResult();
       //this.m_cbUserAction[curchair]|=this.api.AnalyseChiHuCard(this.SwitchToCardIndex(this.m_cbCardIndex[curchair]),
       //    this.m_WeaveItemArray[curchair],this.m_cbWeaveItemCount[curchair],0,dwChiHuRight,ChiHuResult);
-    }
     //构造数据
-    let user = this.getUserByChair(curchair);
     let SendCard = {
       uid: user.uid,
       buhuamark: b,

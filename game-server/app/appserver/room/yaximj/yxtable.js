@@ -7,7 +7,7 @@ const constData = require('../base/constData');
 const api = require('../base/api');
 let tagWeaveItem = require('./')
 const CJudgeDecorator = require('./JudgeDecorator');
-const FKMJ_START_COUNT = 4;
+const START_COUNT = 4;
 let table = require('../table');
 class yxtable extends table {
   constructor() {
@@ -97,7 +97,7 @@ class yxtable extends table {
     }
     ////动作分析
     //let bAroseAction=false;
-    //for (let i=0;i<FKMJ_START_COUNT;i++)
+    //for (let i=0;i<START_COUNT;i++)
     //{
     //    //特殊胡牌
     //    //m_cbUserAction[i]|=m_GameLogic.EstimateChiHu(m_cbCardIndex[i]);
@@ -152,11 +152,11 @@ class yxtable extends table {
     this.m_cbOutCardData = 0;						//出牌扑克
     this.m_cbOutCardCount = 0;						//出牌数目
     this.m_cbDiscardCount = [];			//丢弃数目
-    for (let i = 0; i < FKMJ_START_COUNT; i++) {
+    for (let i = 0; i < START_COUNT; i++) {
       this.m_cbDiscardCount[i] = 0;
     }
     this.m_cbDiscardCard = [];
-    this.m_cbDiscardCard = [FKMJ_START_COUNT][55];		//丢弃记录
+    this.m_cbDiscardCard = [START_COUNT][55];		//丢弃记录
     //发牌信息
     this.m_tianhumark = true;
     this.m_dihumark = true;
@@ -176,32 +176,32 @@ class yxtable extends table {
     this.m_bSendStatus = false;							//发牌状态
     this.m_bGangStatus = false;							//抢杆状态
     this.m_bEnjoinChiHu = [];//禁止吃胡
-    for (let i = 0; i < FKMJ_START_COUNT; i++) {
+    for (let i = 0; i < START_COUNT; i++) {
       this.m_bEnjoinChiHu[i] = false;
     }
 
     this.m_bEnjoinChiPeng = [];	//禁止吃碰
-    for (let i = 0; i < FKMJ_START_COUNT; i++) {
+    for (let i = 0; i < START_COUNT; i++) {
       this.m_bEnjoinChiPeng[i] = false;
     }
 
     //用户状态
     this.m_bResponse = [];				//响应标志
     this.m_cbUserAction = [];     //用户动作
-    for (let i = 0; i < FKMJ_START_COUNT; i++) {
+    for (let i = 0; i < START_COUNT; i++) {
       this.m_cbUserAction[i] = constData.WIK_NULL;
     }
     this.m_cbOperateCard = [];//操作扑克
-    for (let i = 0; i < FKMJ_START_COUNT; i++) {
+    for (let i = 0; i < START_COUNT; i++) {
       this.m_cbOperateCard[i] = 0;
     }
     this.m_cbPerformAction = [];
-    for (let i = 0; i < FKMJ_START_COUNT; i++) {
+    for (let i = 0; i < START_COUNT; i++) {
       this.m_cbPerformAction[i] = 0;
     }
     //组合扑克
     this.m_cbWeaveItemCount = [];
-    for (let i = 0; i < FKMJ_START_COUNT; i++) {
+    for (let i = 0; i < START_COUNT; i++) {
       this.m_cbWeaveItemCount[i] = 0;
     }
     this.m_WeaveItemArray = [];//组合扑克
